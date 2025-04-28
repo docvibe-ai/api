@@ -1,4 +1,4 @@
-module github.com/docvibe-ai/api/go
+module github.com/docvibe-ai/api
 
 go 1.24
 
