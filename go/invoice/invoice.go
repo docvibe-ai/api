@@ -13,9 +13,9 @@ type Invoice struct {
 	// Invoice period end date
 	PeriodEnd date.NullableDate `json:"period_end,omitempty"`
 	// Issue date of the invoice
-	InvoiceIssueDate date.NullableDate `json:"invoice_issue_date,omitempty"`
+	IssueDate date.NullableDate `json:"issue_date,omitempty"`
 	// Due date of the invoice
-	InvoiceDueDate date.NullableDate `json:"invoice_due_date,omitempty"`
+	DueDate date.NullableDate `json:"due_date,omitempty"`
 
 	// Unique order identifier
 	OrderID string `json:"order_id,omitempty"`
@@ -36,19 +36,33 @@ type Invoice struct {
 	CustomerBilling string `json:"customer_billing_address,omitempty"`
 	// Recipient's shipping address
 	CustomerShipping string `json:"customer_shipping_address,omitempty"`
+	// Recipient's account number
+	CustomerAccount string `json:"customer_account,omitempty"`
+
+	// Subtotal of the invoice
+	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
+	// Tax of the invoice
+	Tax money.NullableAmount `json:"tax,omitempty,omitzero"`
+	// Total of the invoice
+	Total money.NullableAmount `json:"total,omitempty,omitzero"`
+	// Currency of the invoice
+	Currency money.NullableCurrency `json:"currency,omitempty"`
+
+	// Payment reference of the invoice
+	PaymentReference string `json:"payment_reference,omitempty"`
+
+	// Discount percentage of the invoice
+	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
+	// Discount amount of the invoice
+	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
+	// Date until the discount is valid
+	DiscountUntilDate date.NullableDate `json:"discount_until_date,omitempty"`
+
+	// Notes of the invoice
+	Notes string `json:"notes,omitempty"`
 
 	// Items in the invoice
 	Items []Item `json:"items,omitempty"`
-	// Subtotal of the invoice
-	Subtotal money.NullableAmount `json:"subtotal,omitempty"`
-	// Tax of the invoice
-	Tax money.NullableAmount `json:"tax,omitempty"`
-	// Total of the invoice
-	Total money.NullableAmount `json:"total,omitempty"`
-	// Currency of the invoice
-	Currency money.NullableCurrency `json:"currency,omitempty"`
-	// Notes of the invoice
-	Notes string `json:"notes,omitempty"`
 }
 
 type Item struct {
@@ -64,4 +78,8 @@ type Item struct {
 	TotalPrice money.NullableAmount `json:"total_price,omitempty"`
 	// 3-digit currency code
 	Currency money.NullableCurrency `json:"currency,omitempty"`
+	// General Ledger Account Number of the item
+	GeneralLedgerAccountNumber string `json:"general_ledger_account_number,omitempty"`
+	// Booking text of the item
+	BookingText string `json:"booking_text,omitempty"`
 }
