@@ -6,6 +6,13 @@ import (
 )
 
 type Invoice struct {
+	// Type of the invoice, one of: INCOMING_INVOICE, OUTGOING_INVOICE, OTHER_DOCUMENT
+	Type string `json:"type" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE,enum=OTHER_DOCUMENT"`
+	// Client account number
+	ClientAccountNumber string `json:"client_account_number,omitempty"`
+	// Vendor account number
+	VendorAccountNumber string `json:"vendor_account_number,omitempty"`
+
 	// Unique invoice identifier
 	InvoiceID string `json:"invoice_id,omitempty"`
 	// Invoice period start date
@@ -36,8 +43,6 @@ type Invoice struct {
 	CustomerBilling string `json:"customer_billing_address,omitempty"`
 	// Recipient's shipping address
 	CustomerShipping string `json:"customer_shipping_address,omitempty"`
-	// Recipient's account number
-	CustomerAccount string `json:"customer_account,omitempty"`
 
 	// Subtotal of the invoice
 	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
@@ -80,6 +85,8 @@ type Item struct {
 	Currency money.NullableCurrency `json:"currency,omitempty"`
 	// General Ledger Account Number of the item
 	GeneralLedgerAccountNumber string `json:"general_ledger_account_number,omitempty"`
+	// Description of the general ledger account
+	GeneralLedgerAccountDescription string `json:"general_ledger_account_description,omitempty"`
 	// Booking text of the item
 	BookingText string `json:"booking_text,omitempty"`
 }
