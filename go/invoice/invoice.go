@@ -2,59 +2,67 @@ package invoice
 
 import (
 	"github.com/domonda/go-types/date"
+	"github.com/domonda/go-types/email"
 	"github.com/domonda/go-types/money"
+	"github.com/domonda/go-types/nullable"
 )
 
 type Invoice struct {
-	// Type of the invoice, one of: INCOMING_INVOICE, OUTGOING_INVOICE, OTHER_DOCUMENT
-	Type string `json:"type" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE,enum=OTHER_DOCUMENT"`
+	// Type of the invoice, one of: INCOMING_INVOICE, OUTGOING_INVOICE
+	Type nullable.NonEmptyString `json:"type,omitempty" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE"`
 	// Client account number
-	ClientAccountNumber string `json:"client_account_number,omitempty"`
+	ClientAccountNumber nullable.TrimmedString `json:"client_account_number,omitempty"`
 	// Vendor account number
-	VendorAccountNumber string `json:"vendor_account_number,omitempty"`
+	VendorAccountNumber nullable.TrimmedString `json:"vendor_account_number,omitempty"`
 
 	// Unique invoice identifier
-	InvoiceID string `json:"invoice_id,omitempty"`
+	InvoiceID nullable.TrimmedString `json:"invoice_id"`
+	// Issue date of the invoice
+	IssueDate date.Date `json:"issue_date"`
 	// Invoice period start date
 	PeriodStart date.NullableDate `json:"period_start,omitempty"`
 	// Invoice period end date
 	PeriodEnd date.NullableDate `json:"period_end,omitempty"`
-	// Issue date of the invoice
-	IssueDate date.NullableDate `json:"issue_date,omitempty"`
 	// Due date of the invoice
 	DueDate date.NullableDate `json:"due_date,omitempty"`
 
 	// Unique order identifier
-	OrderID string `json:"order_id,omitempty"`
+	OrderID nullable.TrimmedString `json:"order_id,omitempty"`
 	// Unique customer identifier
-	CustomerID string `json:"customer_id,omitempty"`
+	CustomerID nullable.TrimmedString `json:"customer_id,omitempty"`
 	// Issuer of the invoice
-	Issuer string `json:"issuer,omitempty"`
+	Issuer nullable.TrimmedString `json:"issuer"`
 	// Issuer's address
-	IssuerAddress *Address `json:"issuer_address,omitempty"`
+	IssuerAddress *Address `json:"issuer_address"`
 
 	// Recipient of the invoice
-	Customer string `json:"customer,omitempty"`
+	Customer nullable.TrimmedString `json:"customer"`
 	// Recipient's email
-	CustomerEmail string `json:"customer_email,omitempty"`
+	CustomerEmail email.NullableAddress `json:"customer_email,omitempty"`
 	// Recipient's phone
-	CustomerPhone string `json:"customer_phone,omitempty"`
+	CustomerPhone nullable.TrimmedString `json:"customer_phone,omitempty"`
 	// Recipient's billing address
-	CustomerBilling string `json:"customer_billing_address,omitempty"`
+	CustomerBillingAddress *Address `json:"customer_billing_address"`
 	// Recipient's shipping address
-	CustomerShipping string `json:"customer_shipping_address,omitempty"`
+	CustomerShippingAddress *Address `json:"customer_shipping_address,omitempty"`
 
 	// Subtotal of the invoice
 	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
 	// Tax of the invoice
 	Tax money.NullableAmount `json:"tax,omitempty,omitzero"`
 	// Total of the invoice
-	Total money.NullableAmount `json:"total,omitempty,omitzero"`
+	Total money.Amount `json:"total"`
 	// Currency of the invoice
-	Currency money.NullableCurrency `json:"currency,omitempty"`
+	Currency money.Currency `json:"currency"`
+
+	// The invoice is a credit note
+	CreditNote bool `json:"credit_note"`
 
 	// Payment reference of the invoice
-	PaymentReference string `json:"payment_reference,omitempty"`
+	PaymentReference nullable.TrimmedString `json:"payment_reference,omitempty"`
+
+	// Payment terms of the invoice
+	PaymentTerms nullable.TrimmedString `json:"payment_terms,omitempty"`
 
 	// Discount percentage of the invoice
 	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
@@ -64,7 +72,7 @@ type Invoice struct {
 	DiscountUntilDate date.NullableDate `json:"discount_until_date,omitempty"`
 
 	// Notes of the invoice
-	Notes string `json:"notes,omitempty"`
+	Notes []nullable.TrimmedString `json:"notes,omitempty"`
 
 	// Items in the invoice
 	Items []Item `json:"items,omitempty"`
@@ -72,21 +80,27 @@ type Invoice struct {
 
 type Item struct {
 	// Description or name of the item
-	Description string `json:"description,omitempty"`
+	Description string `json:"description"`
+	// Item is a reverse charge or credit note
+	CreditNote bool `json:"credit_note"`
 	// Quantity of the item
-	Quantity *float64 `json:"quantity,omitempty"`
+	Quantity nullable.Type[float64] `json:"quantity,omitempty"`
 	// Unit of the item
-	Unit string `json:"unit,omitempty"`
+	Unit nullable.TrimmedString `json:"unit,omitempty"`
 	// Unit price of the item
 	UnitPrice money.NullableAmount `json:"unit_price,omitempty"`
 	// Total price of the item
 	TotalPrice money.NullableAmount `json:"total_price,omitempty"`
 	// 3-digit currency code
 	Currency money.NullableCurrency `json:"currency,omitempty"`
+	// Discount percentage of the item
+	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
+	// Discount amount of the item
+	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
 	// General Ledger Account Number of the item
-	GeneralLedgerAccountNumber string `json:"general_ledger_account_number,omitempty"`
+	GeneralLedgerAccountNumber nullable.TrimmedString `json:"general_ledger_account_number,omitempty"`
 	// Description of the general ledger account
-	GeneralLedgerAccountDescription string `json:"general_ledger_account_description,omitempty"`
+	GeneralLedgerAccountDescription nullable.TrimmedString `json:"general_ledger_account_description,omitempty"`
 	// Booking text of the item
-	BookingText string `json:"booking_text,omitempty"`
+	BookingText nullable.TrimmedString `json:"booking_text,omitempty"`
 }
