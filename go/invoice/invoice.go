@@ -1,6 +1,7 @@
 package invoice
 
 import (
+	"github.com/domonda/go-types/bank"
 	"github.com/domonda/go-types/date"
 	"github.com/domonda/go-types/email"
 	"github.com/domonda/go-types/money"
@@ -63,6 +64,11 @@ type Invoice struct {
 
 	// Payment terms of the invoice
 	PaymentTerms nullable.TrimmedString `json:"payment_terms,omitempty"`
+
+	// IBAN of the bank account to pay the invoice
+	PaymentIBAN bank.NullableIBAN `json:"payment_iban,omitempty"`
+	// SWIFTBIC of the bank account to pay the invoice
+	PaymentBIC bank.NullableBIC `json:"payment_bic,omitempty"`
 
 	// Discount percentage of the invoice
 	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
