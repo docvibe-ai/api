@@ -1,14 +1,16 @@
 module github.com/docvibe-ai/api
 
-go 1.24
+go 1.23.0
 
-require github.com/domonda/go-types v0.0.0-20250505151907-7a4b8514d949
+toolchain go1.24.3
+
+require github.com/domonda/go-types v0.0.0-20250527163512-252e849a39ce
 
 require (
 	github.com/bahlo/generic-list-go v0.2.0 // indirect
 	github.com/buger/jsonparser v1.1.1 // indirect
 	github.com/cention-sany/utf7 v0.0.0-20170124080048-26cad61bd60a // indirect
-	github.com/domonda/go-errs v0.0.0-20240702051036-0e696c849b5f // indirect
+	github.com/domonda/go-errs v0.0.0-20250509130707-0373cd8156d7 // indirect
 	github.com/domonda/go-pretty v0.0.0-20240110134850-17385799142f // indirect
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
@@ -23,7 +25,7 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/teamwork/tnef v0.0.0-20200108124832-7deabccfdb32 // indirect
-	github.com/ungerik/go-fs v0.0.0-20250410112719-c5187364824d // indirect
+	github.com/ungerik/go-fs v0.0.0-20250527162931-1691110c1708 // indirect
 	github.com/ungerik/go-reflection v0.0.0-20240905081803-708928fe0862 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
 	golang.org/x/net v0.40.0 // indirect
