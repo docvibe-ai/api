@@ -11,10 +11,6 @@ import (
 type Invoice struct {
 	// Type of the invoice, one of: INCOMING_INVOICE, OUTGOING_INVOICE
 	Type nullable.NonEmptyString `json:"type,omitempty" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE"`
-	// Client account number
-	ClientAccountNumber nullable.TrimmedString `json:"client_account_number,omitempty"`
-	// Vendor account number
-	VendorAccountNumber nullable.TrimmedString `json:"vendor_account_number,omitempty"`
 
 	// Unique invoice identifier
 	InvoiceID nullable.TrimmedString `json:"invoice_id"`
@@ -51,6 +47,9 @@ type Invoice struct {
 	// Recipient's shipping address
 	CustomerShippingAddress *Address `json:"customer_shipping_address,omitempty"`
 
+	// Partner account number (vendor or client account number depending on the invoice type)
+	PartnerAccountNumber nullable.TrimmedString `json:"partner_account_number,omitempty"`
+
 	// Subtotal of the invoice
 	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
 	// Tax of the invoice
@@ -59,6 +58,14 @@ type Invoice struct {
 	Total money.Amount `json:"total"`
 	// Currency of the invoice
 	Currency money.Currency `json:"currency"`
+
+	// TODO make enum for the following fields
+	// IntraCommunityAcquisition bool `json:"intra_community_acquisition"`
+
+	// European Union reverse charge
+	ReverseCharge bool `json:"reverse_charge"`
+	// Intra-Community supply
+	IntraCommunitySupply bool `json:"intra_community_supply"`
 
 	// The invoice is a credit note
 	CreditNote bool `json:"credit_note"`
