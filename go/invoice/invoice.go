@@ -108,6 +108,12 @@ type Item struct {
 	Description string `json:"description"`
 	// Item is a reverse charge or credit note
 	CreditNote bool `json:"credit_note"`
+	// Order ID of the item
+	OrderID nullable.TrimmedString `json:"order_id,omitempty"`
+	// Delivery ID of the item
+	DeliveryID nullable.TrimmedString `json:"delivery_id,omitempty"`
+	// Product ID of the item
+	ProductID nullable.TrimmedString `json:"product_id,omitempty"`
 	// Quantity of the item
 	Quantity nullable.Type[float64] `json:"quantity,omitempty,omitzero"`
 	// Unit of the item
