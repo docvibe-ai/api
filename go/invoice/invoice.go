@@ -102,6 +102,8 @@ type Invoice struct {
 }
 
 type Item struct {
+	// Position number of the item in the invoice
+	PositionNumber nullable.TrimmedString `json:"position_number,omitempty"`
 	// Description or name of the item
 	Description string `json:"description"`
 	// Item is a reverse charge or credit note
