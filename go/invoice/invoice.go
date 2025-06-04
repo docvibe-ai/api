@@ -58,6 +58,8 @@ type Invoice struct {
 
 	// Partner account number (vendor or client account number depending on the invoice type)
 	PartnerAccountNumber nullable.TrimmedString `json:"partner_account_number,omitempty"`
+	// Partner account name (vendor or client name depending on the invoice type)
+	PartnerAccountName nullable.TrimmedString `json:"partner_account_name,omitempty"`
 
 	// Subtotal of the invoice
 	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
@@ -74,7 +76,7 @@ type Invoice struct {
 	IntraCommunitySupply bool `json:"intra_community_supply"`
 
 	// The invoice is a credit note
-	CreditNote bool `json:"credit_note"`
+	CreditNote bool `json:"credit_note,omitzero"`
 
 	// Payment reference of the invoice
 	PaymentReference nullable.TrimmedString `json:"payment_reference,omitempty"`
@@ -105,9 +107,9 @@ type Item struct {
 	// Position number of the item in the invoice
 	PositionNumber nullable.TrimmedString `json:"position_number,omitempty"`
 	// Description or name of the item
-	Description string `json:"description"`
+	Description nullable.TrimmedString `json:"description,omitempty"`
 	// Item is a reverse charge or credit note
-	CreditNote bool `json:"credit_note"`
+	CreditNote bool `json:"credit_note,omitzero"`
 	// Order ID of the item
 	OrderID nullable.TrimmedString `json:"order_id,omitempty"`
 	// Delivery ID of the item
@@ -121,17 +123,18 @@ type Item struct {
 	// Unit price of the item
 	UnitPrice money.NullableAmount `json:"unit_price,omitempty,omitzero"`
 	// Total price of the item
-	TotalPrice money.NullableAmount `json:"total_price,omitempty,omitzero"`
-	// VAT percentage of the item
-	VATPercent money.NullableRate `json:"vat_percent,omitempty,omitzero"`
-	// VAT amount of the item
-	VATAmount money.NullableAmount `json:"vat_amount,omitempty,omitzero"`
+	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
+	// Tax percentage of the item
+	TaxPercent money.NullableRate `json:"tax_percent,omitempty,omitzero"`
+	// Tax amount of the item
+	TaxAmount money.NullableAmount `json:"tax_amount,omitempty,omitzero"`
 	// 3-digit currency code
 	Currency money.NullableCurrency `json:"currency,omitempty"`
 	// Discount percentage of the item
 	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
 	// Discount amount of the item
 	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
+
 	// General Ledger Account Number of the item
 	GeneralLedgerAccountNumber nullable.TrimmedString `json:"general_ledger_account_number,omitempty"`
 	// Description of the general ledger account
