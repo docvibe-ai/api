@@ -25,9 +25,11 @@ type Invoice struct {
 
 	// Identifier of the order that the invoice is related to
 	OrderID nullable.TrimmedString `json:"order_id,omitempty"`
+	// Order date of the invoice
+	OrderDate date.NullableDate `json:"order_date,omitempty"`
+
 	// Identifier of the contract that the invoice is related to
 	ContractID nullable.TrimmedString `json:"contract_id,omitempty"`
-
 	// Unique customer identifier
 	CustomerID nullable.TrimmedString `json:"customer_id,omitempty"`
 
