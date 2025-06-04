@@ -33,6 +33,9 @@ type Invoice struct {
 	// Unique customer identifier
 	CustomerID nullable.TrimmedString `json:"customer_id,omitempty"`
 
+	// IDs of the delivery notes that are related to the invoice
+	DeliveryNoteIDs []string `json:"delivery_note_ids,omitempty"`
+
 	// Issuer of the invoice
 	Issuer nullable.TrimmedString `json:"issuer,omitempty"`
 	// Issuer's VAT ID
