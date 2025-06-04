@@ -122,6 +122,10 @@ type Item struct {
 	UnitPrice money.NullableAmount `json:"unit_price,omitempty,omitzero"`
 	// Total price of the item
 	TotalPrice money.NullableAmount `json:"total_price,omitempty,omitzero"`
+	// VAT percentage of the item
+	VATPercent money.NullableRate `json:"vat_percent,omitempty,omitzero"`
+	// VAT amount of the item
+	VATAmount money.NullableAmount `json:"vat_amount,omitempty,omitzero"`
 	// 3-digit currency code
 	Currency money.NullableCurrency `json:"currency,omitempty"`
 	// Discount percentage of the item
