@@ -35,11 +35,15 @@ type Invoice struct {
 
 	// Issuer of the invoice
 	Issuer nullable.TrimmedString `json:"issuer,omitempty"`
+	// Issuer's VAT ID
+	IssuerVATID nullable.TrimmedString `json:"issuer_vat_id,omitempty"`
 	// Issuer's address
 	IssuerAddress *Address `json:"issuer_address,omitempty"`
 
 	// Recipient of the invoice
 	Customer nullable.TrimmedString `json:"customer"`
+	// Recipient's VAT ID
+	CustomerVATID nullable.TrimmedString `json:"customer_vat_id,omitempty"`
 	// Recipient's email
 	CustomerEmail email.NullableAddress `json:"customer_email,omitempty"`
 	// Recipient's phone
