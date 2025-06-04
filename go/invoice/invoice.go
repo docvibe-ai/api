@@ -13,9 +13,9 @@ type Invoice struct {
 	Type nullable.NonEmptyString `json:"type,omitempty" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE"`
 
 	// Unique invoice identifier
-	InvoiceID nullable.TrimmedString `json:"invoice_id"`
+	InvoiceID nullable.TrimmedString `json:"invoice_id,omitempty"`
 	// Issue date of the invoice
-	IssueDate date.Date `json:"issue_date"`
+	IssueDate date.NullableDate `json:"issue_date,omitempty"`
 	// Invoice period start date
 	PeriodStart date.NullableDate `json:"period_start,omitempty"`
 	// Invoice period end date
@@ -32,9 +32,9 @@ type Invoice struct {
 	CustomerID nullable.TrimmedString `json:"customer_id,omitempty"`
 
 	// Issuer of the invoice
-	Issuer nullable.TrimmedString `json:"issuer"`
+	Issuer nullable.TrimmedString `json:"issuer,omitempty"`
 	// Issuer's address
-	IssuerAddress *Address `json:"issuer_address"`
+	IssuerAddress *Address `json:"issuer_address,omitempty"`
 
 	// Recipient of the invoice
 	Customer nullable.TrimmedString `json:"customer"`
@@ -43,7 +43,7 @@ type Invoice struct {
 	// Recipient's phone
 	CustomerPhone nullable.TrimmedString `json:"customer_phone,omitempty"`
 	// Recipient's billing address
-	CustomerBillingAddress *Address `json:"customer_billing_address"`
+	CustomerBillingAddress *Address `json:"customer_billing_address,omitempty"`
 	// Recipient's shipping address
 	CustomerShippingAddress *Address `json:"customer_shipping_address,omitempty"`
 
@@ -55,12 +55,9 @@ type Invoice struct {
 	// Tax of the invoice
 	Tax money.NullableAmount `json:"tax,omitempty,omitzero"`
 	// Total of the invoice
-	Total money.Amount `json:"total"`
+	Total money.NullableAmount `json:"total,omitempty,omitzero"`
 	// Currency of the invoice
-	Currency money.Currency `json:"currency"`
-
-	// TODO make enum for the following fields
-	// IntraCommunityAcquisition bool `json:"intra_community_acquisition"`
+	Currency money.NullableCurrency `json:"currency,omitempty"`
 
 	// European Union reverse charge
 	ReverseCharge bool `json:"reverse_charge"`
@@ -101,13 +98,13 @@ type Item struct {
 	// Item is a reverse charge or credit note
 	CreditNote bool `json:"credit_note"`
 	// Quantity of the item
-	Quantity nullable.Type[float64] `json:"quantity,omitempty"`
+	Quantity nullable.Type[float64] `json:"quantity,omitempty,omitzero"`
 	// Unit of the item
 	Unit nullable.TrimmedString `json:"unit,omitempty"`
 	// Unit price of the item
-	UnitPrice money.NullableAmount `json:"unit_price,omitempty"`
+	UnitPrice money.NullableAmount `json:"unit_price,omitempty,omitzero"`
 	// Total price of the item
-	TotalPrice money.NullableAmount `json:"total_price,omitempty"`
+	TotalPrice money.NullableAmount `json:"total_price,omitempty,omitzero"`
 	// 3-digit currency code
 	Currency money.NullableCurrency `json:"currency,omitempty"`
 	// Discount percentage of the item
