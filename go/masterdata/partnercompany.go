@@ -1,21 +1,21 @@
 package masterdata
 
 type Company struct {
-	Name             string
-	AlternativeNames []string `json:",omitempty"`
-	Street           string   `json:",omitempty"`
-	City             string   `json:",omitempty"`
-	PostalCode       string   `json:",omitempty"`
-	Country          string   `json:",omitempty"`
-	Phone            string   `json:",omitempty"`
-	Email            string   `json:",omitempty"`
-	Website          string   `json:",omitempty"`
-	VatID            string   `json:",omitempty"`
-	RegistrationNo   string   `json:",omitempty"`
+	Name             string   `json:"name"`
+	AlternativeNames []string `json:"alternative_names,omitempty"`
+	Street           string   `json:"street,omitempty"`
+	City             string   `json:"city,omitempty"`
+	PostalCode       string   `json:"postal_code,omitempty"`
+	Country          string   `json:"country,omitempty"`
+	Phone            string   `json:"phone,omitempty"`
+	Email            string   `json:"email,omitempty"`
+	Website          string   `json:"website,omitempty"`
+	VatID            string   `json:"vat_id,omitempty"`
+	RegistrationNo   string   `json:"registration_no,omitempty"`
 }
 
 type PartnerCompany struct {
-	ClientAccountNumber string
-	VendorAccountNumber string
+	ClientAccountNumber string `json:"client_account_number"`
+	VendorAccountNumber string `json:"vendor_account_number"`
 	Company
 }

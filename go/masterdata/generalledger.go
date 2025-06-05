@@ -1,6 +1,6 @@
 package masterdata
 
 type GeneralLedgerAccount struct {
-	Number      string
-	Description string
+	Number      string `json:"number"`
+	Description string `json:"description"`
 }
