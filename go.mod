@@ -4,6 +4,8 @@ go 1.23.0
 
 toolchain go1.24.3
 
+tool github.com/ungerik/go-enum
+
 require github.com/domonda/go-types v0.0.0-20250527163512-252e849a39ce
 
 require (
@@ -25,12 +27,17 @@ require (
 	github.com/rivo/uniseg v0.4.7 // indirect
 	github.com/ssor/bom v0.0.0-20170718123548-6386211fdfcf // indirect
 	github.com/teamwork/tnef v0.0.0-20200108124832-7deabccfdb32 // indirect
+	github.com/ungerik/go-astvisit v0.0.0-20250122155250-e994358a002f // indirect
+	github.com/ungerik/go-enum v0.0.0-20250606160734-a6eb025bdc7a // indirect
 	github.com/ungerik/go-fs v0.0.0-20250527162931-1691110c1708 // indirect
 	github.com/ungerik/go-reflection v0.0.0-20240905081803-708928fe0862 // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	golang.org/x/net v0.40.0 // indirect
+	golang.org/x/mod v0.25.0 // indirect
+	golang.org/x/net v0.41.0 // indirect
+	golang.org/x/sync v0.15.0 // indirect
 	golang.org/x/sys v0.33.0 // indirect
-	golang.org/x/text v0.25.0 // indirect
+	golang.org/x/text v0.26.0 // indirect
+	golang.org/x/tools v0.34.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/xurls/v2 v2.6.0 // indirect
 )

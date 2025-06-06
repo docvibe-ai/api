@@ -17,7 +17,7 @@ import (
 
 type Invoice struct {
 	// Type of the invoice, one of: INCOMING_INVOICE, OUTGOING_INVOICE
-	Type nullable.NonEmptyString `json:"type,omitempty" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE"`
+	Type Type `json:"type,omitempty" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE"`
 
 	// Unique invoice identifier
 	InvoiceID nullable.TrimmedString `json:"invoice_id,omitempty"`
@@ -108,6 +108,9 @@ type Invoice struct {
 
 	// Items in the invoice
 	Items []Item `json:"items,omitempty"`
+
+	// Accounting entries of the invoice
+	AccountingEntries []AccountingEntry `json:"accounting_entries,omitempty"`
 }
 
 func (inv *Invoice) Normalize() (err error) {
@@ -270,13 +273,6 @@ type Item struct {
 	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
 	// Discount amount of the item
 	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
-
-	// General Ledger Account Number of the item
-	GeneralLedgerAccountNumber nullable.TrimmedString `json:"general_ledger_account_number,omitempty"`
-	// Description of the general ledger account
-	GeneralLedgerAccountDescription nullable.TrimmedString `json:"general_ledger_account_description,omitempty"`
-	// Booking text of the item
-	BookingText nullable.TrimmedString `json:"booking_text,omitempty"`
 }
 
 func (item *Item) Normalize() (err error) {
@@ -305,4 +301,32 @@ func (item *Item) Normalize() (err error) {
 		}
 	}
 	return err
+}
+
+type AccountingEntryType string
+
+const (
+	AccountingEntryTypeCredit AccountingEntryType = "CREDIT"
+	AccountingEntryTypeDebit  AccountingEntryType = "DEBIT"
+)
+
+type AccountingEntry struct {
+	// Type of the accounting entry
+	Type AccountingEntryType `json:"type,omitempty" jsonschema:"enum=CREDIT,enum=DEBIT"`
+
+	// General Ledger Account Number of the item
+	GeneralLedgerAccountNumber nullable.TrimmedString `json:"general_ledger_account_number,omitempty"`
+	// Description of the general ledger account
+	GeneralLedgerAccountDescription nullable.TrimmedString `json:"general_ledger_account_description,omitempty"`
+	// Booking text of the item
+	BookingText nullable.TrimmedString `json:"booking_text,omitempty"`
+
+	// Date of the accounting entry
+	Date date.NullableDate `json:"date,omitempty"`
+	// Description of the accounting entry
+	Description nullable.TrimmedString `json:"description,omitempty"`
+	// Amount of the accounting entry
+	Amount money.NullableAmount `json:"amount,omitempty,omitzero"`
+	// Tax amount of the accounting entry
+	TaxAmount money.NullableAmount `json:"tax_amount,omitempty,omitzero"`
 }
