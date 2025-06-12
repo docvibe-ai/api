@@ -3,7 +3,6 @@ package invoice
 import (
 	"errors"
 	"fmt"
-	"math"
 	"slices"
 
 	"github.com/domonda/go-types/bank"
@@ -16,8 +15,8 @@ import (
 )
 
 type Invoice struct {
-	// Type of the invoice, one of: INCOMING_INVOICE, OUTGOING_INVOICE
-	Type Type `json:"type,omitempty" jsonschema:"enum=INCOMING_INVOICE,enum=OUTGOING_INVOICE"`
+	// Type of the invoice
+	Type Type `json:"type,omitempty"`
 
 	// Unique invoice identifier
 	InvoiceID nullable.TrimmedString `json:"invoice_id,omitempty"`
@@ -63,11 +62,6 @@ type Invoice struct {
 	// Recipient's shipping address
 	CustomerShippingAddress *Address `json:"customer_shipping_address,omitempty"`
 
-	// Partner account number (vendor or client account number depending on the invoice type)
-	PartnerAccountNumber nullable.TrimmedString `json:"partner_account_number,omitempty"`
-	// Partner account name (vendor or client name depending on the invoice type)
-	PartnerAccountName nullable.TrimmedString `json:"partner_account_name,omitempty"`
-
 	// Subtotal of the invoice
 	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
 	// Tax of the invoice
@@ -107,226 +101,144 @@ type Invoice struct {
 	Notes []nullable.TrimmedString `json:"notes,omitempty"`
 
 	// Items in the invoice
-	Items []Item `json:"items,omitempty"`
+	Items []*Item `json:"items,omitempty"`
 
 	// Accounting entries of the invoice
-	AccountingEntries []AccountingEntry `json:"accounting_entries,omitempty"`
+	AccountingEntries []*AccountingEntry `json:"accounting_entries,omitempty"`
 }
 
-func (inv *Invoice) Normalize() (err error) {
+func (inv *Invoice) Normalize() error {
 	if inv == nil {
 		return nil
 	}
-	if inv.Type != "" && inv.Type != "INCOMING_INVOICE" && inv.Type != "OUTGOING_INVOICE" {
-		err = errors.Join(err, fmt.Errorf("invalid invoice type: %s", inv.Type))
+	var e, err error
+	if e = inv.Type.Validate(); e != nil {
+		err = errors.Join(err, e)
 		inv.Type = ""
 	}
-	if inv.IssueDate, err = inv.IssueDate.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid issue date: %w", err))
+	if inv.IssueDate, e = inv.IssueDate.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid issue date: %w", e))
 		inv.IssueDate.SetNull()
 	}
-	if inv.PeriodStart, err = inv.PeriodStart.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid period start date: %w", err))
+	if inv.PeriodStart, e = inv.PeriodStart.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid period start date: %w", e))
 		inv.PeriodStart.SetNull()
 	}
-	if inv.PeriodEnd, err = inv.PeriodEnd.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid period end date: %w", err))
+	if inv.PeriodEnd, e = inv.PeriodEnd.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid period end date: %w", e))
 		inv.PeriodEnd.SetNull()
 	}
-	if inv.DueDate, err = inv.DueDate.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid due date: %w", err))
+	if inv.PeriodStart.IsNotNull() && inv.PeriodEnd.IsNotNull() {
+		if inv.PeriodStart.Get().After(inv.PeriodEnd.Get()) {
+			err = errors.Join(err, fmt.Errorf("period start date %s is after period end date %s", inv.PeriodStart.Get(), inv.PeriodEnd.Get()))
+			inv.PeriodStart.SetNull()
+		}
+	}
+	if inv.DueDate, e = inv.DueDate.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid due date: %w", e))
 		inv.DueDate.SetNull()
 	}
-	if inv.OrderDate, err = inv.OrderDate.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid order date: %w", err))
+	if inv.OrderDate, e = inv.OrderDate.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid order date: %w", e))
 		inv.OrderDate.SetNull()
 	}
 	inv.DeliveryNoteIDs = slices.DeleteFunc(inv.DeliveryNoteIDs, func(id notnull.TrimmedString) bool {
 		return id.IsEmpty()
 	})
-	if inv.IssuerVATID, err = inv.IssuerVATID.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid issuer VAT ID: %w", err))
+	if inv.IssuerVATID, e = inv.IssuerVATID.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid issuer VAT ID: %w", e))
 		inv.IssuerVATID.SetNull()
 	}
-	if err = inv.IssuerAddress.Normalize(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid issuer address: %w", err))
+	if err = inv.IssuerAddress.Normalize(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid issuer address: %w", e))
 	}
-	if inv.CustomerVATID, err = inv.CustomerVATID.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid customer VAT ID: %w", err))
+	if inv.CustomerVATID, e = inv.CustomerVATID.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid customer VAT ID: %w", e))
 		inv.CustomerVATID.SetNull()
 	}
-	if inv.CustomerEmail, err = inv.CustomerEmail.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid customer email: %w", err))
+	if inv.CustomerEmail, e = inv.CustomerEmail.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid customer email: %w", e))
 		inv.CustomerEmail.SetNull()
 	}
-	if err = inv.CustomerBillingAddress.Normalize(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid customer billing address: %w", err))
+	if err = inv.CustomerBillingAddress.Normalize(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid customer billing address: %w", e))
 	}
-	if err = inv.CustomerShippingAddress.Normalize(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid customer shipping address: %w", err))
+	if err = inv.CustomerShippingAddress.Normalize(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid customer shipping address: %w", e))
 	}
-	if inv.Subtotal.IsNotNull() {
-		inv.Subtotal.Set(inv.Subtotal.Get().Abs().RoundToCents())
+
+	if inv.Subtotal.IsNotNull() && inv.Subtotal.Get() < 0 {
+		err = errors.Join(err, fmt.Errorf("subtotal %f is negative", inv.Subtotal.Get()))
+		inv.Subtotal.Set(inv.Subtotal.Get().Abs())
 	}
-	if inv.Tax.IsNotNull() {
-		inv.Tax.Set(inv.Tax.Get().Abs().RoundToCents())
+	if inv.Tax.IsNotNull() && inv.Tax.Get() < 0 {
+		err = errors.Join(err, fmt.Errorf("tax %f is negative", inv.Tax.Get()))
+		inv.Tax.Set(inv.Tax.Get().Abs())
 	}
-	if inv.Total.IsNotNull() {
-		inv.Total.Set(inv.Total.Get().Abs().RoundToCents())
+	if inv.Total.IsNotNull() && inv.Total.Get() < 0 {
+		err = errors.Join(err, fmt.Errorf("total %f is negative", inv.Total.Get()))
+		inv.Total.Set(inv.Total.Get().Abs())
 	}
-	switch {
-	case inv.Subtotal.IsNotNull() && inv.Tax.IsNotNull() && inv.Total.IsNotNull():
+	if inv.Subtotal.IsNotNull() && inv.Total.IsNotNull() {
 		if inv.Subtotal.Get() > inv.Total.Get() {
 			err = errors.Join(err, fmt.Errorf("subtotal %f is greater than total %f", inv.Subtotal.Get(), inv.Total.Get()))
-			inv.Subtotal, inv.Total = inv.Total, inv.Subtotal
+			inv.Subtotal.SetNull()
 		}
+	}
+	if inv.Subtotal.IsNotNull() && inv.Tax.IsNotNull() && inv.Total.IsNotNull() {
 		if !(inv.Subtotal.Get() + inv.Tax.Get()).WithinOneCent(inv.Total.Get()) {
 			err = errors.Join(err, fmt.Errorf("subtotal %f and tax %f does not sum up to total %f", inv.Subtotal.Get(), inv.Tax.Get(), inv.Total.Get()))
-			inv.Tax.Set(inv.Total.Get() - inv.Subtotal.Get())
+			inv.Tax.SetNull()
 		}
-	case inv.Subtotal.IsNotNull() && inv.Total.IsNotNull():
-		// Tax is null
-		if inv.Subtotal.Get() > inv.Total.Get() {
-			err = errors.Join(err, fmt.Errorf("subtotal %f is greater than total %f", inv.Subtotal.Get(), inv.Total.Get()))
-			inv.Subtotal, inv.Total = inv.Total, inv.Subtotal
-		}
-		inv.Tax.Set(inv.Total.Get() - inv.Subtotal.Get())
-	case inv.Tax.IsNotNull() && inv.Total.IsNotNull():
-		// Subtotal is null
-		if inv.Tax.Get() > inv.Total.Get() {
-			err = errors.Join(err, fmt.Errorf("tax %f is greater than total %f", inv.Tax.Get(), inv.Total.Get()))
-			inv.Tax.Set(0)
-		}
-		inv.Subtotal.Set(inv.Total.Get() - inv.Tax.Get())
-	case inv.Subtotal.IsNotNull() && inv.Tax.IsNotNull():
-		// Total is null
-		inv.Total.Set(inv.Subtotal.Get() + inv.Tax.Get())
 	}
-	if inv.Currency, err = inv.Currency.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid currency: %w", err))
+	if inv.Currency, e = inv.Currency.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid currency: %w", e))
 		inv.Currency.SetNull()
 	}
-	if inv.PaymentIBAN, err = inv.PaymentIBAN.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid payment IBAN: %w", err))
+	if inv.PaymentIBAN, e = inv.PaymentIBAN.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid payment IBAN: %w", e))
 		inv.PaymentIBAN.SetNull()
 	}
-	if inv.PaymentBIC, err = inv.PaymentBIC.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid payment BIC: %w", err))
+	if inv.PaymentBIC, e = inv.PaymentBIC.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid payment BIC: %w", e))
 		inv.PaymentBIC.SetNull()
 	}
 	if inv.DiscountPercent.IsNotNull() {
-		inv.DiscountPercent.Set(inv.DiscountPercent.Get().Abs())
+		if inv.DiscountPercent.Get() < 0 {
+			err = errors.Join(err, fmt.Errorf("discount percent %f is negative", inv.DiscountPercent.Get()))
+			inv.DiscountPercent.Set(inv.DiscountPercent.Get().Abs())
+		}
 		if inv.DiscountPercent.Get() > 100 {
 			err = errors.Join(err, fmt.Errorf("discount percent %f is greater than 100%%", inv.DiscountPercent.Get()))
 			inv.DiscountPercent.SetNull()
 		}
 	}
-	if inv.DiscountAmount.IsNotNull() {
-		inv.DiscountAmount.Set(inv.DiscountAmount.Get().Abs().RoundToCents())
+	if inv.DiscountAmount.IsNotNull() && inv.DiscountAmount.Get() < 0 {
+		err = errors.Join(err, fmt.Errorf("discount amount %f is negative", inv.DiscountAmount.Get()))
+		inv.DiscountAmount.Set(inv.DiscountAmount.Get().Abs())
 	}
-	if inv.DiscountUntilDate, err = inv.DiscountUntilDate.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid discount until date: %w", err))
+	if inv.DiscountUntilDate, e = inv.DiscountUntilDate.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid discount until date: %w", e))
 		inv.DiscountUntilDate.SetNull()
 	}
 	inv.Notes = slices.DeleteFunc(inv.Notes, func(note nullable.TrimmedString) bool {
 		return note.IsNull()
 	})
-	inv.Items = slices.DeleteFunc(inv.Items, func(item Item) bool {
-		return item == Item{}
+	inv.Items = slices.DeleteFunc(inv.Items, func(item *Item) bool {
+		return item == nil || *item == Item{}
 	})
-	for i := range inv.Items {
-		if err = inv.Items[i].Normalize(); err != nil {
-			err = errors.Join(err, fmt.Errorf("invalid item %d: %w", i, err))
+	for i, item := range inv.Items {
+		if e = item.Normalize(); e != nil {
+			err = errors.Join(err, fmt.Errorf("invalid item %d: %w", i, e))
+		}
+	}
+	inv.AccountingEntries = slices.DeleteFunc(inv.AccountingEntries, func(entry *AccountingEntry) bool {
+		return entry == nil || *entry == AccountingEntry{}
+	})
+	for i, entry := range inv.AccountingEntries {
+		if e = entry.Normalize(); e != nil {
+			err = errors.Join(err, fmt.Errorf("invalid accounting entry %d: %w", i, e))
 		}
 	}
 	return err
-}
-
-type Item struct {
-	// Position number of the item in the invoice
-	PositionNumber nullable.TrimmedString `json:"position_number,omitempty"`
-	// Description or name of the item
-	Description nullable.TrimmedString `json:"description,omitempty"`
-	// Item is a reverse charge or credit note
-	CreditNote bool `json:"credit_note,omitzero"`
-	// Order ID of the item
-	OrderID nullable.TrimmedString `json:"order_id,omitempty"`
-	// Delivery ID of the item
-	DeliveryID nullable.TrimmedString `json:"delivery_id,omitempty"`
-	// Product ID of the item
-	ProductID nullable.TrimmedString `json:"product_id,omitempty"`
-	// Quantity of the item
-	Quantity nullable.Type[float64] `json:"quantity,omitempty,omitzero"`
-	// Unit of the item
-	Unit nullable.TrimmedString `json:"unit,omitempty"`
-	// Unit price of the item
-	UnitPrice money.NullableAmount `json:"unit_price,omitempty,omitzero"`
-	// Total price of the item
-	Subtotal money.NullableAmount `json:"subtotal,omitempty,omitzero"`
-	// Tax percentage of the item
-	TaxPercent money.NullableRate `json:"tax_percent,omitempty,omitzero"`
-	// Tax amount of the item
-	TaxAmount money.NullableAmount `json:"tax_amount,omitempty,omitzero"`
-	// 3-digit currency code
-	Currency money.NullableCurrency `json:"currency,omitempty"`
-	// Discount percentage of the item
-	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
-	// Discount amount of the item
-	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
-}
-
-func (item *Item) Normalize() (err error) {
-	if item == nil {
-		return nil
-	}
-	if item.TaxPercent.IsNotNull() {
-		item.TaxPercent.Set(item.TaxPercent.Get().Abs())
-		if item.TaxPercent.Get() > 100 {
-			err = errors.Join(err, fmt.Errorf("tax percent %f is greater than 100%%", item.TaxPercent.Get()))
-			item.TaxPercent.SetNull()
-		}
-	}
-	if item.Quantity.IsNotNull() {
-		item.Quantity.Set(math.Abs(item.Quantity.Get()))
-	}
-	if item.Currency, err = item.Currency.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid currency: %w", err))
-		item.Currency.SetNull()
-	}
-	if item.DiscountPercent.IsNotNull() {
-		item.DiscountPercent.Set(item.DiscountPercent.Get().Abs())
-		if item.DiscountPercent.Get() > 100 {
-			err = errors.Join(err, fmt.Errorf("discount percent %f is greater than 100%%", item.DiscountPercent.Get()))
-			item.DiscountPercent.SetNull()
-		}
-	}
-	return err
-}
-
-type AccountingEntryType string
-
-const (
-	AccountingEntryTypeCredit AccountingEntryType = "CREDIT"
-	AccountingEntryTypeDebit  AccountingEntryType = "DEBIT"
-)
-
-type AccountingEntry struct {
-	// Type of the accounting entry
-	Type AccountingEntryType `json:"type,omitempty" jsonschema:"enum=CREDIT,enum=DEBIT"`
-
-	// General Ledger Account Number of the item
-	GeneralLedgerAccountNumber nullable.TrimmedString `json:"general_ledger_account_number,omitempty"`
-	// Description of the general ledger account
-	GeneralLedgerAccountDescription nullable.TrimmedString `json:"general_ledger_account_description,omitempty"`
-	// Booking text of the item
-	BookingText nullable.TrimmedString `json:"booking_text,omitempty"`
-
-	// Date of the accounting entry
-	Date date.NullableDate `json:"date,omitempty"`
-	// Description of the accounting entry
-	Description nullable.TrimmedString `json:"description,omitempty"`
-	// Amount of the accounting entry
-	Amount money.NullableAmount `json:"amount,omitempty,omitzero"`
-	// Tax amount of the accounting entry
-	TaxAmount money.NullableAmount `json:"tax_amount,omitempty,omitzero"`
 }

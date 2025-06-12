@@ -7,9 +7,12 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+
+	"github.com/invopop/jsonschema"
 )
 
-type Type string //#enum
+// Invoice type
+type Type string //#enum,jsonschema
 
 const (
 	TypeNull            Type = "" //#null
@@ -114,4 +117,21 @@ func (t Type) Value() (driver.Value, error) {
 		return nil, nil
 	}
 	return string(t), nil
+}
+
+// JSONSchema implements the jsonschema.Schema interface for Type
+func (Type) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
+		OneOf: []*jsonschema.Schema{
+			{
+				Type: "string",
+				Enum: []any{
+					"INCOMING_INVOICE",
+					"OUTGOING_INVOICE",
+				},
+			},
+			{Type: "null"},
+		},
+		Default: TypeNull,
+	}
 }

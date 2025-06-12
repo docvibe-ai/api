@@ -1,0 +1,910 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/docvibe-ai/api/refs/heads/master/schema/accounting-invoice.schema.json",
+  "properties": {
+    "type": {
+      "oneOf": [
+        {
+          "type": "string",
+          "enum": [
+            "INCOMING_INVOICE",
+            "OUTGOING_INVOICE"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Type of the invoice",
+      "default": null
+    },
+    "invoice_id": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Unique invoice identifier",
+      "default": null
+    },
+    "issue_date": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Issue date of the invoice",
+      "default": null
+    },
+    "period_start": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Invoice period start date",
+      "default": null
+    },
+    "period_end": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Invoice period end date",
+      "default": null
+    },
+    "due_date": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Due date of the invoice",
+      "default": null
+    },
+    "order_id": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Identifier of the order that the invoice is related to",
+      "default": null
+    },
+    "order_date": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Order date of the invoice",
+      "default": null
+    },
+    "contract_id": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Identifier of the contract that the invoice is related to",
+      "default": null
+    },
+    "customer_id": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Unique customer identifier",
+      "default": null
+    },
+    "delivery_note_ids": {
+      "items": {
+        "type": "string"
+      },
+      "type": "array",
+      "description": "IDs of the delivery notes that are related to the invoice"
+    },
+    "issuer": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Issuer of the invoice",
+      "default": null
+    },
+    "issuer_vat_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 16,
+          "minLength": 4
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Value Added Tax ID",
+      "description": "Issuer's VAT ID",
+      "default": null
+    },
+    "issuer_address": {
+      "properties": {
+        "street": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "city": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "state": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "postal_code": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "country": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable ISO 3166-1 alpha 2 Country Code",
+          "default": null
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Issuer's address"
+    },
+    "customer": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Recipient of the invoice",
+      "default": null
+    },
+    "customer_vat_id": {
+      "oneOf": [
+        {
+          "type": "string",
+          "maxLength": 16,
+          "minLength": 4
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Value Added Tax ID",
+      "description": "Recipient's VAT ID",
+      "default": null
+    },
+    "customer_email": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "email"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Email Address",
+      "description": "Recipient's email",
+      "default": null
+    },
+    "customer_phone": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Recipient's phone",
+      "default": null
+    },
+    "customer_billing_address": {
+      "properties": {
+        "street": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "city": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "state": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "postal_code": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "country": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable ISO 3166-1 alpha 2 Country Code",
+          "default": null
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Recipient's billing address"
+    },
+    "customer_shipping_address": {
+      "properties": {
+        "street": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "city": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "state": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "postal_code": {
+          "oneOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable Trimmed String",
+          "default": null
+        },
+        "country": {
+          "oneOf": [
+            {
+              "type": "string",
+              "pattern": "^[A-Z]{2}$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "title": "Nullable ISO 3166-1 alpha 2 Country Code",
+          "default": null
+        }
+      },
+      "additionalProperties": false,
+      "type": "object",
+      "description": "Recipient's shipping address"
+    },
+    "subtotal": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "$id": "https://github.com/domonda/go-types/money/amount",
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Subtotal of the invoice",
+      "default": null
+    },
+    "tax": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "$id": "https://github.com/domonda/go-types/money/amount",
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Tax of the invoice",
+      "default": null
+    },
+    "total": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "$id": "https://github.com/domonda/go-types/money/amount",
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Total of the invoice",
+      "default": null
+    },
+    "currency": {
+      "type": "string",
+      "description": "Currency of the invoice"
+    },
+    "reverse_charge": {
+      "type": "boolean",
+      "description": "European Union reverse charge"
+    },
+    "intra_community_supply": {
+      "type": "boolean",
+      "description": "Intra-Community supply"
+    },
+    "credit_note": {
+      "type": "boolean",
+      "description": "The invoice is a credit note"
+    },
+    "payment_reference": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Payment reference of the invoice",
+      "default": null
+    },
+    "payment_terms": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Payment terms of the invoice",
+      "default": null
+    },
+    "payment_iban": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^([A-Z]{2})(\\d{2})([A-Z\\d]{8,30})$"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable IBAN",
+      "description": "IBAN of the bank account to pay the invoice",
+      "default": null
+    },
+    "payment_bic": {
+      "oneOf": [
+        {
+          "type": "string",
+          "pattern": "^([A-Z]{4})([A-Z]{2})([A-Z2-9][A-NP-Z0-9])(XXX|[A-WY-Z0-9][A-Z0-9]{2})?$"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable BIC/SWIFT-Code",
+      "description": "SWIFTBIC of the bank account to pay the invoice",
+      "default": null
+    },
+    "discount_percent": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "$id": "https://github.com/domonda/go-types/money/rate",
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Discount percentage of the invoice",
+      "default": null
+    },
+    "discount_amount": {
+      "$schema": "https://json-schema.org/draft/2020-12/schema",
+      "oneOf": [
+        {
+          "$id": "https://github.com/domonda/go-types/money/amount",
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "description": "Discount amount of the invoice",
+      "default": null
+    },
+    "discount_until_date": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Date until the discount is valid",
+      "default": null
+    },
+    "notes": {
+      "items": {
+        "oneOf": [
+          {
+            "type": "string"
+          },
+          {
+            "type": "null"
+          }
+        ],
+        "title": "Nullable Trimmed String",
+        "default": null
+      },
+      "type": "array",
+      "description": "Notes of the invoice"
+    },
+    "items": {
+      "items": {
+        "properties": {
+          "position_number": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Position number of the item in the invoice",
+            "default": null
+          },
+          "description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Description or name of the item",
+            "default": null
+          },
+          "credit_note": {
+            "type": "boolean",
+            "description": "Item is a reverse charge or credit note"
+          },
+          "order_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Order ID of the item",
+            "default": null
+          },
+          "delivery_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Delivery ID of the item",
+            "default": null
+          },
+          "product_id": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Product ID of the item",
+            "default": null
+          },
+          "quantity": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Quantity of the item",
+            "default": null
+          },
+          "unit": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Unit of the item",
+            "default": null
+          },
+          "unit_price": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/amount",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Unit price of the item",
+            "default": null
+          },
+          "subtotal": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/amount",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Total price of the item",
+            "default": null
+          },
+          "tax_percent": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/rate",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax percentage of the item",
+            "default": null
+          },
+          "tax_amount": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/amount",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax amount of the item",
+            "default": null
+          },
+          "currency": {
+            "type": "string",
+            "description": "3-digit currency code"
+          },
+          "discount_percent": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/rate",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Discount percentage of the item",
+            "default": null
+          },
+          "discount_amount": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/amount",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Discount amount of the item",
+            "default": null
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "credit_note"
+        ]
+      },
+      "type": "array",
+      "description": "Items in the invoice"
+    },
+    "accounting_entries": {
+      "items": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "description": "Type of the accounting entry"
+          },
+          "general_ledger_account_number": {
+            "type": "string",
+            "description": "General Ledger Account Number of the item"
+          },
+          "general_ledger_account_description": {
+            "oneOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Nullable Trimmed String",
+            "description": "Description of the general ledger account",
+            "default": null
+          },
+          "amount": {
+            "type": "number",
+            "description": "Amount of the accounting entry"
+          },
+          "tax_amount": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/amount",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax amount of the accounting entry",
+            "default": null
+          },
+          "tax_percent": {
+            "$schema": "https://json-schema.org/draft/2020-12/schema",
+            "oneOf": [
+              {
+                "$id": "https://github.com/domonda/go-types/money/rate",
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "description": "Tax percentage of the accounting entry",
+            "default": null
+          },
+          "booking_text": {
+            "type": "string",
+            "description": "Booking text of the item"
+          }
+        },
+        "additionalProperties": false,
+        "type": "object",
+        "required": [
+          "type",
+          "general_ledger_account_number",
+          "amount",
+          "booking_text"
+        ]
+      },
+      "type": "array"
+    },
+    "partner_account_number": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Partner account number (vendor or client account number depending on the invoice type)",
+      "default": null
+    },
+    "partner_account_name": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Partner account name (vendor or client name depending on the invoice type)",
+      "default": null
+    }
+  },
+  "additionalProperties": false,
+  "type": "object",
+  "required": [
+    "customer",
+    "reverse_charge",
+    "intra_community_supply",
+    "credit_note"
+  ]
+}
