@@ -119,7 +119,7 @@ func (t Type) Value() (driver.Value, error) {
 	return string(t), nil
 }
 
-// JSONSchema implements the jsonschema.Schema interface for Type
+// JSONSchema returns a github.com/invopop/jsonschema.Schema for Type
 func (Type) JSONSchema() *jsonschema.Schema {
 	return &jsonschema.Schema{
 		OneOf: []*jsonschema.Schema{
