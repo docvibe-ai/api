@@ -79,13 +79,10 @@ type Invoice struct {
 	// The invoice is a credit note
 	CreditNote bool `json:"credit_note"`
 
-	// Payment received
-	PaymentReceived bool `json:"payment_received"`
-	// Payment received date
-	PaymentReceivedDate date.NullableDate `json:"payment_received_date,omitempty"`
-
-	// Direct debit mandate
-	DirectDebitMandate bool `json:"direct_debit_mandate"`
+	// Payment status of the invoice
+	PaymentStatus PaymentStatus `json:"payment_status"`
+	// Date the invoice was paid
+	PaidDate date.NullableDate `json:"paid_date,omitempty"`
 	// Direct debit mandate ID
 	DirectDebitMandateID nullable.TrimmedString `json:"direct_debit_mandate_id,omitempty"`
 
@@ -203,6 +200,15 @@ func (inv *Invoice) Normalize() error {
 	if inv.Currency, e = inv.Currency.Normalized(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid currency: %w", e))
 		inv.Currency.SetNull()
+	}
+
+	if e = inv.PaymentStatus.Validate(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid payment status: %w", e))
+		inv.PaymentStatus = PaymentStatusUnpaid
+	}
+	if inv.PaidDate, e = inv.PaidDate.Normalized(); e != nil {
+		err = errors.Join(err, fmt.Errorf("invalid paid date: %w", e))
+		inv.PaidDate.SetNull()
 	}
 	if inv.PaymentIBAN, e = inv.PaymentIBAN.Normalized(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid payment IBAN: %w", e))

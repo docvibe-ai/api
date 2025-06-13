@@ -95,7 +95,7 @@ func (t AccountingEntryType) Valid() bool {
 // Validate returns an error if t is none of the valid values for AccountingEntryType
 func (t AccountingEntryType) Validate() error {
 	if !t.Valid() {
-		return fmt.Errorf("invalid value %#v for type invoice.AccountingEntryType", t)
+		return fmt.Errorf("invalid value %#v for type invoicing.AccountingEntryType", t)
 	}
 	return nil
 }
@@ -121,9 +121,9 @@ func (t AccountingEntryType) String() string {
 	return string(t)
 }
 
-// JSONSchema implements the jsonschema.Schema interface for AccountingEntryType
-func (AccountingEntryType) JSONSchema() jsonschema.Schema {
-	return jsonschema.Schema{
+// JSONSchema returns a github.com/invopop/jsonschema.Schema for AccountingEntryType
+func (AccountingEntryType) JSONSchema() *jsonschema.Schema {
+	return &jsonschema.Schema{
 		Type: "string",
 		Enum: []any{
 			"CREDIT",
