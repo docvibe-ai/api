@@ -77,11 +77,20 @@ type Invoice struct {
 	IntraCommunitySupply bool `json:"intra_community_supply"`
 
 	// The invoice is a credit note
-	CreditNote bool `json:"credit_note,omitzero"`
+	CreditNote bool `json:"credit_note"`
+
+	// Payment received
+	PaymentReceived bool `json:"payment_received"`
+	// Payment received date
+	PaymentReceivedDate date.NullableDate `json:"payment_received_date,omitempty"`
+
+	// Direct debit mandate
+	DirectDebitMandate bool `json:"direct_debit_mandate"`
+	// Direct debit mandate ID
+	DirectDebitMandateID nullable.TrimmedString `json:"direct_debit_mandate_id,omitempty"`
 
 	// Payment reference of the invoice
 	PaymentReference nullable.TrimmedString `json:"payment_reference,omitempty"`
-
 	// Payment terms of the invoice
 	PaymentTerms nullable.TrimmedString `json:"payment_terms,omitempty"`
 
