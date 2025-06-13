@@ -1,4 +1,4 @@
-package invoice
+package invoicing
 
 import (
 	"errors"
@@ -16,7 +16,7 @@ import (
 
 type Invoice struct {
 	// Type of the invoice
-	Type Type `json:"type,omitempty"`
+	Type InvoiceType `json:"type,omitempty"`
 
 	// Unique invoice identifier
 	InvoiceID nullable.TrimmedString `json:"invoice_id,omitempty"`
@@ -101,7 +101,7 @@ type Invoice struct {
 	Notes []nullable.TrimmedString `json:"notes,omitempty"`
 
 	// Items in the invoice
-	Items []*Item `json:"items,omitempty"`
+	Items []*InvoiceItem `json:"items,omitempty"`
 
 	// Accounting entries of the invoice
 	AccountingEntries []*AccountingEntry `json:"accounting_entries,omitempty"`
@@ -224,8 +224,8 @@ func (inv *Invoice) Normalize() error {
 	inv.Notes = slices.DeleteFunc(inv.Notes, func(note nullable.TrimmedString) bool {
 		return note.IsNull()
 	})
-	inv.Items = slices.DeleteFunc(inv.Items, func(item *Item) bool {
-		return item == nil || *item == Item{}
+	inv.Items = slices.DeleteFunc(inv.Items, func(item *InvoiceItem) bool {
+		return item == nil || *item == InvoiceItem{}
 	})
 	for i, item := range inv.Items {
 		if e = item.Normalize(); e != nil {

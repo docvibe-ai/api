@@ -9,22 +9,22 @@ import (
 
 	"github.com/invopop/jsonschema"
 
-	"github.com/docvibe-ai/api/go/invoice"
+	"github.com/docvibe-ai/api/go/invoicing"
 )
 
 func main() {
 	err := createSchema(
-		invoice.Invoice{},
-		"github.com/docvibe-ai/api/go/invoice", // importPath
-		"invoice.schema.json",                  // schemaFilename
+		invoicing.Invoice{},
+		"github.com/docvibe-ai/api/go/invoicing", // importPath
+		"invoice.schema.json",                    // schemaFilename
 	)
 	if err != nil {
 		fmt.Println(err)
 	}
 	err = createSchema(
-		invoice.AccountingInvoice{},
-		"github.com/docvibe-ai/api/go/invoice", // importPath
-		"accounting-invoice.schema.json",       // schemaFilename
+		invoicing.AccountingInvoice{},
+		"github.com/docvibe-ai/api/go/invoicing", // importPath
+		"accounting-invoice.schema.json",         // schemaFilename
 	)
 	if err != nil {
 		fmt.Println(err)

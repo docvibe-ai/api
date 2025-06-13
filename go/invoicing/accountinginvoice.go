@@ -1,4 +1,4 @@
-package invoice
+package invoicing
 
 //go:generate go tool go-enum $GOFILE
 

@@ -792,10 +792,7 @@
           }
         },
         "additionalProperties": false,
-        "type": "object",
-        "required": [
-          "credit_note"
-        ]
+        "type": "object"
       },
       "type": "array",
       "description": "Items in the invoice"

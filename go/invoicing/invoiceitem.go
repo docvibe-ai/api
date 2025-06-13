@@ -1,4 +1,4 @@
-package invoice
+package invoicing
 
 import (
 	"errors"
@@ -9,13 +9,13 @@ import (
 	"github.com/domonda/go-types/nullable"
 )
 
-type Item struct {
+type InvoiceItem struct {
 	// Position number of the item in the invoice
 	PositionNumber nullable.TrimmedString `json:"position_number,omitempty"`
 	// Description or name of the item
 	Description nullable.TrimmedString `json:"description,omitempty"`
 	// Item is a reverse charge or credit note
-	CreditNote bool `json:"credit_note,omitzero"`
+	CreditNote bool `json:"credit_note,omitempty"`
 	// Order ID of the item
 	OrderID nullable.TrimmedString `json:"order_id,omitempty"`
 	// Delivery ID of the item
@@ -42,7 +42,7 @@ type Item struct {
 	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
 }
 
-func (item *Item) Normalize() error {
+func (item *InvoiceItem) Normalize() error {
 	if item == nil {
 		return nil
 	}
