@@ -56,10 +56,6 @@ func (a *AccountingEntry) Normalize() error {
 		err = errors.Join(err, fmt.Errorf("general ledger account number is empty"))
 		a.GeneralLedgerAccountNumber = ""
 	}
-	if a.BookingText.IsEmpty() {
-		err = errors.Join(err, fmt.Errorf("booking text is empty"))
-		a.BookingText = ""
-	}
 	a.Amount = a.Amount.Abs().RoundToCents()
 	if a.TaxAmount.IsNotNull() {
 		a.TaxAmount.Set(a.TaxAmount.Get().Abs().RoundToCents())
@@ -70,6 +66,10 @@ func (a *AccountingEntry) Normalize() error {
 			err = errors.Join(err, fmt.Errorf("tax percent %f is greater than 100%%", a.TaxPercent.Get()))
 			a.TaxPercent.SetNull()
 		}
+	}
+	if a.BookingText.IsEmpty() {
+		err = errors.Join(err, fmt.Errorf("booking text is empty"))
+		a.BookingText = ""
 	}
 	return nil
 }
