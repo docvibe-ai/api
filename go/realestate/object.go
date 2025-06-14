@@ -28,3 +28,8 @@ type Object struct {
 // 	PostalCode       nullable.TrimmedString  `json:"postal_code,omitempty"`
 // 	Country          country.NullableCode    `json:"country,omitempty"`
 // }
+
+type IdentifyObjectResult struct {
+	ObjectID             notnull.TrimmedString   `json:"object_id"`
+	AlternativeObjectIDs []notnull.TrimmedString `json:"alternative_object_ids,omitempty"`
+}
