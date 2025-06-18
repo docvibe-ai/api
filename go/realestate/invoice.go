@@ -2,7 +2,7 @@ package realestate
 
 import "github.com/docvibe-ai/api/go/invoicing"
 
-type RealEstateInvoice struct {
+type Invoice struct {
 	invoicing.AccountingInvoice
 
 	Section35aAmounts []*Section35aInvoiceAmount `json:"section35a_amounts,omitempty"`
