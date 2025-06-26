@@ -12,18 +12,19 @@ import (
 type PaymentStatus string //#enum,jsonschema
 
 const (
-	PaymentStatusUnpaid               PaymentStatus = "UNPAID"
-	PaymentStatusNotPayable           PaymentStatus = "NOT_PAYABLE"
-	PaymentStatusPaidWithCash         PaymentStatus = "PAID_WITH_CASH"
-	PaymentStatusPaidWithCreditcard   PaymentStatus = "PAID_WITH_CREDITCARD"
-	PaymentStatusPaidWithBankTransfer PaymentStatus = "PAID_WITH_BANK_TRANSFER"
-	PaymentStatusPaidWithDirectDebit  PaymentStatus = "PAID_WITH_DIRECT_DEBIT"
-	PaymentStatusPaidWithStripe       PaymentStatus = "PAID_WITH_STRIPE"
-	PaymentStatusPaidWithPaypal       PaymentStatus = "PAID_WITH_PAYPAL"
-	PaymentStatusPaidWithGooglePay    PaymentStatus = "PAID_WITH_GOOGLE_PAY"
-	PaymentStatusPaidWithApplePay     PaymentStatus = "PAID_WITH_APPLE_PAY"
-	PaymentStatusPaidWithAmazonPay    PaymentStatus = "PAID_WITH_AMAZON_PAY"
-	PaymentStatusPaidWithTransferwise PaymentStatus = "PAID_WITH_TRANSFERWISE"
+	PaymentStatusUnpaid                          PaymentStatus = "UNPAID"
+	PaymentStatusNotPayable                      PaymentStatus = "NOT_PAYABLE"
+	PaymentStatusPaidWithCash                    PaymentStatus = "PAID_WITH_CASH"
+	PaymentStatusPaidWithCreditcard              PaymentStatus = "PAID_WITH_CREDITCARD"
+	PaymentStatusPaidWithBankTransfer            PaymentStatus = "PAID_WITH_BANK_TRANSFER"
+	PaymentStatusPaidWithDirectDebit             PaymentStatus = "PAID_WITH_DIRECT_DEBIT"
+	PaymentStatusPaidWithStripe                  PaymentStatus = "PAID_WITH_STRIPE"
+	PaymentStatusPaidWithPaypal                  PaymentStatus = "PAID_WITH_PAYPAL"
+	PaymentStatusPaidWithGooglePay               PaymentStatus = "PAID_WITH_GOOGLE_PAY"
+	PaymentStatusPaidWithApplePay                PaymentStatus = "PAID_WITH_APPLE_PAY"
+	PaymentStatusPaidWithAmazonPay               PaymentStatus = "PAID_WITH_AMAZON_PAY"
+	PaymentStatusPaidWithTransferwise            PaymentStatus = "PAID_WITH_TRANSFERWISE"
+	PaymentStatusPaidWithElectronicPaymentMethod PaymentStatus = "PAID_WITH_ELECTRONIC_PAYMENT_METHOD"
 )
 
 func (p PaymentStatus) IsPaid() bool {
@@ -45,7 +46,8 @@ func (p PaymentStatus) Valid() bool {
 		PaymentStatusPaidWithGooglePay,
 		PaymentStatusPaidWithApplePay,
 		PaymentStatusPaidWithAmazonPay,
-		PaymentStatusPaidWithTransferwise:
+		PaymentStatusPaidWithTransferwise,
+		PaymentStatusPaidWithElectronicPaymentMethod:
 		return true
 	}
 	return false
@@ -74,6 +76,7 @@ func (PaymentStatus) Enums() []PaymentStatus {
 		PaymentStatusPaidWithApplePay,
 		PaymentStatusPaidWithAmazonPay,
 		PaymentStatusPaidWithTransferwise,
+		PaymentStatusPaidWithElectronicPaymentMethod,
 	}
 }
 
@@ -92,6 +95,7 @@ func (PaymentStatus) EnumStrings() []string {
 		"PAID_WITH_APPLE_PAY",
 		"PAID_WITH_AMAZON_PAY",
 		"PAID_WITH_TRANSFERWISE",
+		"PAID_WITH_ELECTRONIC_PAYMENT_METHOD",
 	}
 }
 
@@ -117,6 +121,7 @@ func (PaymentStatus) JSONSchema() *jsonschema.Schema {
 			"PAID_WITH_APPLE_PAY",
 			"PAID_WITH_AMAZON_PAY",
 			"PAID_WITH_TRANSFERWISE",
+			"PAID_WITH_ELECTRONIC_PAYMENT_METHOD",
 		},
 	}
 }
