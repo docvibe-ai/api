@@ -46,6 +46,8 @@ type Invoice struct {
 	Issuer nullable.TrimmedString `json:"issuer,omitempty"`
 	// Issuer's VAT ID
 	IssuerVATID vat.NullableID `json:"issuer_vat_id,omitempty"`
+	// Issuer's tax number other than VAT ID
+	IssuerTaxNumber nullable.TrimmedString `json:"issuer_tax_number,omitempty"`
 	// Issuer's address
 	IssuerAddress *Address `json:"issuer_address,omitempty"`
 
@@ -71,13 +73,19 @@ type Invoice struct {
 	// Currency of the invoice
 	Currency money.NullableCurrency `json:"currency,omitempty"`
 
-	// European Union reverse charge
+	// European Union reverse charge for intra-community supply or acquisition
 	ReverseCharge bool `json:"reverse_charge"`
-	// Intra-Community supply
-	IntraCommunitySupply bool `json:"intra_community_supply"`
+	// Reason for the reverse charge value
+	ReverseChargeReason nullable.TrimmedString `json:"reverse_charge_reason"`
+	// Exact text of the reverse charge clause
+	ReverseChargeClauseText nullable.TrimmedString `json:"reverse_charge_clause_text"`
+	// Problems indicating that the invoice is not valid for reverse charge, but marked as such
+	ReverseChargeProblems nullable.TrimmedString `json:"reverse_charge_problems"`
 
 	// The invoice is a credit note
 	CreditNote bool `json:"credit_note"`
+	// Exact text of the credit note clause
+	CreditNoteClauseText nullable.TrimmedString `json:"credit_note_clause_text"`
 
 	// Payment status of the invoice
 	PaymentStatus PaymentStatus `json:"payment_status"`
@@ -256,4 +264,9 @@ func (inv *Invoice) Normalize() error {
 		}
 	}
 	return err
+}
+
+type EUReverseCharge struct {
+	ReverseChargeDetected bool                   `json:"reverse_charge_detected"`
+	ReverseChargeReason   nullable.TrimmedString `json:"reverse_charge_reason"`
 }
