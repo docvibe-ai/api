@@ -1,0 +1,275 @@
+openapi: 3.0.3
+info:
+  title: DocVibe Engine API - Generic Endpoints
+  description: |
+    AI-powered document processing API for extracting structured data from invoices and documents.
+    
+    This API provides general document processing endpoints that accept direct file uploads.
+    All endpoints support both GET (for testing) and POST (for actual processing) methods.
+  version: 1.0.0
+  contact:
+    name: DocVibe AI
+    url: https://docvibe.ai
+  license:
+    name: Proprietary
+    url: https://docvibe.ai
+
+servers:
+  - url: https://api.docvibe.ai
+    description: Production server
+
+paths:
+  /extract/identify-real-estate-object:
+    post:
+      summary: Identify real estate objects in a document
+      description: |
+        Analyzes a document to identify which real estate objects from a provided list are mentioned.
+        Requires a document file and a JSON file containing the list of real estate objects to match against.
+      operationId: identifyRealEstateObject
+      tags:
+        - Generic API
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - document
+                - objects
+              properties:
+                document:
+                  type: string
+                  format: binary
+                  description: The document file to analyze (PDF, image, etc.)
+                objects:
+                  type: string
+                  format: binary
+                  description: JSON file containing array of real estate objects to match against
+            encoding:
+              document:
+                contentType: application/pdf, image/*, application/octet-stream
+              objects:
+                contentType: application/json
+      responses:
+        '200':
+          description: Successfully identified real estate objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RealEstateObject'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for real estate object identification
+      description: Returns a sample response for testing purposes
+      operationId: identifyRealEstateObjectTest
+      tags:
+        - Generic API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RealEstateObject'
+
+  /extract/section-35a-invoice-amounts:
+    post:
+      summary: Extract §35a EStG invoice amounts
+      description: |
+        Extracts tax-relevant amounts from invoices according to German §35a EStG (Income Tax Act).
+        Identifies household services, craftsman services, and formally employed worker costs.
+      operationId: extractSection35aInvoiceAmounts
+      tags:
+        - Generic API
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: The document file to analyze (PDF, image, etc.)
+      responses:
+        '200':
+          description: Successfully extracted §35a amounts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Section35aInvoiceAmount'
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for §35a extraction
+      description: Returns a sample response for testing purposes
+      operationId: extractSection35aInvoiceAmountsTest
+      tags:
+        - Generic API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Section35aInvoiceAmount'
+
+  /extract/text-and-page-images:
+    post:
+      summary: Extract text and page images from document
+      description: |
+        Extracts text content and generates page images from a document.
+        Returns a ZIP file containing the extracted text and page images.
+      operationId: extractTextAndPageImages
+      tags:
+        - Generic API
+      requestBody:
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+              description: The document file to process (PDF, image, etc.)
+      responses:
+        '200':
+          description: Successfully extracted text and images
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+                description: ZIP file containing document.json and page images
+        '400':
+          description: Bad request - invalid input
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for text and image extraction
+      description: Returns a sample response for testing purposes
+      operationId: extractTextAndPageImagesTest
+      tags:
+        - Generic API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/zip:
+              schema:
+                type: string
+                format: binary
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: integer
+          description: HTTP status code
+      required:
+        - error
+
+    RealEstateObject:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the real estate object
+        type:
+          type: string
+          description: Type of the real estate object
+        notes:
+          type: string
+          description: Additional notes about the object
+        street:
+          type: string
+          description: Street address
+        street_variations:
+          type: array
+          items:
+            type: string
+          description: Alternative street name variations
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State or region
+        postal_code:
+          type: string
+          description: Postal code
+        country:
+          type: string
+          description: Country code
+      required:
+        - id
+
+    Section35aInvoiceAmount:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FORMALLY_EMPLOYED_WORKER
+            - HOUSEHOLD_SERVICES
+            - CRAFTSMAN_SERVICES
+          description: Type of service according to §35a EStG
+        net_amount:
+          type: number
+          format: float
+          description: Net amount (without VAT) eligible for tax deduction
+        gross_amount:
+          type: number
+          format: float
+          description: Gross amount (with VAT)
+        purpose:
+          type: string
+          description: Explanation of why the service qualifies under §35a EStG
+      required:
+        - type
+        - net_amount
+        - purpose
+
+tags:
+  - name: Generic API
+    description: General document processing endpoints that accept direct file uploads

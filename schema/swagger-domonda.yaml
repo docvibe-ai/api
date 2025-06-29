@@ -1,0 +1,528 @@
+openapi: 3.0.3
+info:
+  title: DocVibe Engine API - Domonda Integration
+  description: |
+    AI-powered document processing API for Domonda integration.
+    
+    This API provides specialized endpoints for Domonda integration using document IDs.
+    All endpoints require Domonda API key authentication and document ID headers.
+    All endpoints support both GET (for testing) and POST (for actual processing) methods.
+  version: 1.0.0
+  contact:
+    name: DocVibe AI
+    url: https://docvibe.ai
+  license:
+    name: Proprietary
+    url: https://docvibe.ai
+
+servers:
+  - url: https://api.docvibe.ai
+    description: Production server
+
+paths:
+  /domonda/extract/invoice:
+    post:
+      summary: Extract invoice data from Domonda document
+      description: |
+        Extracts structured invoice data from a document stored in Domonda.
+        Requires Domonda API key and document ID.
+      operationId: domondaExtractInvoice
+      tags:
+        - Domonda API
+      parameters:
+        - name: X-Document-ID
+          in: header
+          required: true
+          description: UUID of the document in Domonda
+          schema:
+            type: string
+            format: uuid
+        - name: X-Domonda-API-Key
+          in: header
+          required: true
+          description: API key for Domonda authentication
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully extracted invoice data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+        '400':
+          description: Bad request - invalid document ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for Domonda invoice extraction
+      description: Returns a sample response for testing purposes
+      operationId: domondaExtractInvoiceTest
+      tags:
+        - Domonda API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+
+  /domonda/extract/accounting-invoice:
+    post:
+      summary: Extract accounting invoice data from Domonda document
+      description: |
+        Extracts structured accounting invoice data with GL account information from a document stored in Domonda.
+        Requires Domonda API key and document ID.
+      operationId: domondaExtractAccountingInvoice
+      tags:
+        - Domonda API
+      parameters:
+        - name: X-Document-ID
+          in: header
+          required: true
+          description: UUID of the document in Domonda
+          schema:
+            type: string
+            format: uuid
+        - name: X-Domonda-API-Key
+          in: header
+          required: true
+          description: API key for Domonda authentication
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully extracted accounting invoice data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingInvoice'
+        '400':
+          description: Bad request - invalid document ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for Domonda accounting invoice extraction
+      description: Returns a sample response for testing purposes
+      operationId: domondaExtractAccountingInvoiceTest
+      tags:
+        - Domonda API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountingInvoice'
+
+  /domonda/extract/real-estate-invoice:
+    post:
+      summary: Extract real estate invoice data from Domonda document
+      description: |
+        Extracts structured real estate invoice data including §35a amounts and identified objects from a document stored in Domonda.
+        Requires Domonda API key and document ID.
+      operationId: domondaExtractRealEstateInvoice
+      tags:
+        - Domonda API
+      parameters:
+        - name: X-Document-ID
+          in: header
+          required: true
+          description: UUID of the document in Domonda
+          schema:
+            type: string
+            format: uuid
+        - name: X-Domonda-API-Key
+          in: header
+          required: true
+          description: API key for Domonda authentication
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully extracted real estate invoice data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealEstateInvoice'
+        '400':
+          description: Bad request - invalid document ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for Domonda real estate invoice extraction
+      description: Returns a sample response for testing purposes
+      operationId: domondaExtractRealEstateInvoiceTest
+      tags:
+        - Domonda API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RealEstateInvoice'
+
+  /domonda/extract/identify-real-estate-object:
+    post:
+      summary: Identify real estate objects in Domonda document
+      description: |
+        Identifies which real estate objects from the client's portfolio are mentioned in a document stored in Domonda.
+        Requires Domonda API key and document ID.
+      operationId: domondaIdentifyRealEstateObject
+      tags:
+        - Domonda API
+      parameters:
+        - name: X-Document-ID
+          in: header
+          required: true
+          description: UUID of the document in Domonda
+          schema:
+            type: string
+            format: uuid
+        - name: X-Domonda-API-Key
+          in: header
+          required: true
+          description: API key for Domonda authentication
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Successfully identified real estate objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RealEstateObject'
+        '400':
+          description: Bad request - invalid document ID
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized - invalid API key
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    get:
+      summary: Test endpoint for Domonda real estate object identification
+      description: Returns a sample response for testing purposes
+      operationId: domondaIdentifyRealEstateObjectTest
+      tags:
+        - Domonda API
+      responses:
+        '200':
+          description: Sample response
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RealEstateObject'
+
+components:
+  schemas:
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: Error message
+        code:
+          type: integer
+          description: HTTP status code
+      required:
+        - error
+
+    RealEstateObject:
+      type: object
+      properties:
+        id:
+          type: string
+          description: Unique identifier for the real estate object
+        type:
+          type: string
+          description: Type of the real estate object
+        notes:
+          type: string
+          description: Additional notes about the object
+        street:
+          type: string
+          description: Street address
+        street_variations:
+          type: array
+          items:
+            type: string
+          description: Alternative street name variations
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State or region
+        postal_code:
+          type: string
+          description: Postal code
+        country:
+          type: string
+          description: Country code
+      required:
+        - id
+
+    Section35aInvoiceAmount:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - FORMALLY_EMPLOYED_WORKER
+            - HOUSEHOLD_SERVICES
+            - CRAFTSMAN_SERVICES
+          description: Type of service according to §35a EStG
+        net_amount:
+          type: number
+          format: float
+          description: Net amount (without VAT) eligible for tax deduction
+        gross_amount:
+          type: number
+          format: float
+          description: Gross amount (with VAT)
+        purpose:
+          type: string
+          description: Explanation of why the service qualifies under §35a EStG
+      required:
+        - type
+        - net_amount
+        - purpose
+
+    Address:
+      type: object
+      properties:
+        street:
+          type: string
+          description: Street address
+        city:
+          type: string
+          description: City name
+        state:
+          type: string
+          description: State or region
+        postal_code:
+          type: string
+          description: Postal code
+        country:
+          type: string
+          description: Country code
+
+    InvoiceItem:
+      type: object
+      properties:
+        description:
+          type: string
+          description: Description of the item
+        quantity:
+          type: number
+          format: float
+          description: Quantity of the item
+        unit_price:
+          type: number
+          format: float
+          description: Unit price
+        total:
+          type: number
+          format: float
+          description: Total price for this item
+        tax_percent:
+          type: number
+          format: float
+          description: Tax percentage applied to this item
+
+    Invoice:
+      type: object
+      properties:
+        type:
+          type: string
+          description: Type of the invoice
+        invoice_id:
+          type: string
+          description: Unique invoice identifier
+        issue_date:
+          type: string
+          format: date
+          description: Issue date of the invoice
+        due_date:
+          type: string
+          format: date
+          description: Due date of the invoice
+        customer:
+          type: string
+          description: Recipient of the invoice
+        customer_vat_id:
+          type: string
+          description: Recipient's VAT ID
+        customer_email:
+          type: string
+          format: email
+          description: Recipient's email
+        customer_billing_address:
+          $ref: '#/components/schemas/Address'
+        subtotal:
+          type: number
+          format: float
+          description: Subtotal of the invoice
+        tax:
+          type: number
+          format: float
+          description: Tax amount of the invoice
+        total:
+          type: number
+          format: float
+          description: Total of the invoice
+        currency:
+          type: string
+          description: Currency of the invoice
+        payment_status:
+          type: string
+          description: Payment status of the invoice
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/InvoiceItem'
+          description: Items in the invoice
+      required:
+        - customer
+
+    AccountingEntry:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - CREDIT
+            - DEBIT
+          description: Type of the accounting entry
+        general_ledger_account_number:
+          type: string
+          description: General Ledger Account Number
+        general_ledger_account_description:
+          type: string
+          description: Description of the general ledger account
+        amount:
+          type: number
+          format: float
+          description: Amount of the accounting entry
+        tax_amount:
+          type: number
+          format: float
+          description: Tax amount of the accounting entry
+        tax_percent:
+          type: number
+          format: float
+          description: Tax percentage of the accounting entry
+        booking_text:
+          type: string
+          description: Booking text of the item
+      required:
+        - type
+        - general_ledger_account_number
+        - amount
+        - booking_text
+
+    AccountingInvoice:
+      allOf:
+        - $ref: '#/components/schemas/Invoice'
+        - type: object
+          properties:
+            partner_account_number:
+              type: string
+              description: Partner account number (vendor or client account number)
+            partner_account_name:
+              type: string
+              description: Partner account name (vendor or client name)
+            accounting_entries:
+              type: array
+              items:
+                $ref: '#/components/schemas/AccountingEntry'
+              description: Accounting entries of the invoice
+
+    RealEstateInvoice:
+      allOf:
+        - $ref: '#/components/schemas/AccountingInvoice'
+        - type: object
+          properties:
+            section35a_amounts:
+              type: array
+              items:
+                $ref: '#/components/schemas/Section35aInvoiceAmount'
+              description: §35a EStG amounts extracted from the invoice
+            identified_objects:
+              type: array
+              items:
+                $ref: '#/components/schemas/RealEstateObject'
+              description: Real estate objects identified in the document
+
+  securitySchemes:
+    DomondaAPIKey:
+      type: apiKey
+      in: header
+      name: X-Domonda-API-Key
+      description: API key for Domonda authentication
+
+security:
+  - DomondaAPIKey: []
+
+tags:
+  - name: Domonda API
+    description: Specialized endpoints for Domonda integration using document IDs
