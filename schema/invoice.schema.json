@@ -175,6 +175,19 @@
       "description": "Issuer's VAT ID",
       "default": null
     },
+    "issuer_tax_number": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Issuer's tax number other than VAT ID",
+      "default": null
+    },
     "issuer_address": {
       "properties": {
         "street": {
@@ -482,15 +495,109 @@
     },
     "reverse_charge": {
       "type": "boolean",
-      "description": "European Union reverse charge"
+      "description": "European Union reverse charge for intra-community supply or acquisition"
     },
-    "intra_community_supply": {
-      "type": "boolean",
-      "description": "Intra-Community supply"
+    "reverse_charge_reason": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Reason for the reverse charge value",
+      "default": null
+    },
+    "reverse_charge_clause_text": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Exact text of the reverse charge clause",
+      "default": null
+    },
+    "reverse_charge_problems": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Problems indicating that the invoice is not valid for reverse charge, but marked as such",
+      "default": null
     },
     "credit_note": {
       "type": "boolean",
       "description": "The invoice is a credit note"
+    },
+    "credit_note_clause_text": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Exact text of the credit note clause",
+      "default": null
+    },
+    "payment_status": {
+      "type": "string",
+      "enum": [
+        "UNPAID",
+        "NOT_PAYABLE",
+        "PAID_WITH_CASH",
+        "PAID_WITH_CREDITCARD",
+        "PAID_WITH_BANK_TRANSFER",
+        "PAID_WITH_DIRECT_DEBIT",
+        "PAID_WITH_STRIPE",
+        "PAID_WITH_PAYPAL",
+        "PAID_WITH_GOOGLE_PAY",
+        "PAID_WITH_APPLE_PAY",
+        "PAID_WITH_AMAZON_PAY",
+        "PAID_WITH_TRANSFERWISE",
+        "PAID_WITH_ELECTRONIC_PAYMENT_METHOD"
+      ],
+      "description": "Payment status of the invoice"
+    },
+    "paid_date": {
+      "oneOf": [
+        {
+          "type": "string",
+          "format": "date"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Date",
+      "description": "Date the invoice was paid",
+      "default": null
+    },
+    "direct_debit_mandate_id": {
+      "oneOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "title": "Nullable Trimmed String",
+      "description": "Direct debit mandate ID",
+      "default": null
     },
     "payment_reference": {
       "oneOf": [
@@ -802,6 +909,10 @@
         "properties": {
           "type": {
             "type": "string",
+            "enum": [
+              "CREDIT",
+              "DEBIT"
+            ],
             "description": "Type of the accounting entry"
           },
           "general_ledger_account_number": {
@@ -876,7 +987,11 @@
   "required": [
     "customer",
     "reverse_charge",
-    "intra_community_supply",
-    "credit_note"
+    "reverse_charge_reason",
+    "reverse_charge_clause_text",
+    "reverse_charge_problems",
+    "credit_note",
+    "credit_note_clause_text",
+    "payment_status"
   ]
 }
