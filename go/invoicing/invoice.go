@@ -104,7 +104,7 @@ type Invoice struct {
 	// SWIFTBIC of the bank account to pay the invoice
 	PaymentBIC bank.NullableBIC `json:"payment_bic,omitempty"`
 
-	// Discount percentage of the invoice
+	// Discount percentage of the invoice (valid range: 0-100)
 	DiscountPercent money.NullableRate `json:"discount_percent,omitempty,omitzero"`
 	// Discount amount of the invoice
 	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
@@ -121,6 +121,11 @@ type Invoice struct {
 	AccountingEntries []*AccountingEntry `json:"accounting_entries,omitempty"`
 }
 
+// Normalize validates and normalizes all fields of the Invoice.
+// It returns an aggregated error of all validation issues found.
+// Invalid fields are either corrected (e.g., negative amounts become absolute)
+// or set to null/zero values. The invoice remains usable after normalization,
+// with the returned error describing what was corrected.
 func (inv *Invoice) Normalize() error {
 	if inv == nil {
 		return nil
@@ -163,7 +168,7 @@ func (inv *Invoice) Normalize() error {
 		err = errors.Join(err, fmt.Errorf("invalid issuer VAT ID: %w", e))
 		inv.IssuerVATID.SetNull()
 	}
-	if err = inv.IssuerAddress.Normalize(); e != nil {
+	if e = inv.IssuerAddress.Normalize(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid issuer address: %w", e))
 	}
 	if inv.CustomerVATID, e = inv.CustomerVATID.Normalized(); e != nil {
@@ -174,10 +179,10 @@ func (inv *Invoice) Normalize() error {
 		err = errors.Join(err, fmt.Errorf("invalid customer email: %w", e))
 		inv.CustomerEmail.SetNull()
 	}
-	if err = inv.CustomerBillingAddress.Normalize(); e != nil {
+	if e = inv.CustomerBillingAddress.Normalize(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid customer billing address: %w", e))
 	}
-	if err = inv.CustomerShippingAddress.Normalize(); e != nil {
+	if e = inv.CustomerShippingAddress.Normalize(); e != nil {
 		err = errors.Join(err, fmt.Errorf("invalid customer shipping address: %w", e))
 	}
 
