@@ -42,31 +42,36 @@ type InvoiceItem struct {
 	DiscountAmount money.NullableAmount `json:"discount_amount,omitempty,omitzero"`
 }
 
+// Normalize validates and normalizes all fields of the InvoiceItem.
+// It returns an aggregated error of all validation issues found.
+// Invalid fields are either corrected (e.g., negative amounts become absolute)
+// or set to null/zero values. The item remains usable after normalization,
+// with the returned error describing what was corrected.
 func (item *InvoiceItem) Normalize() error {
 	if item == nil {
 		return nil
 	}
-	var e, err error
+	var err, result error
 	if item.TaxPercent.IsNotNull() {
 		item.TaxPercent.Set(item.TaxPercent.Get().Abs())
 		if item.TaxPercent.Get() > 100 {
-			err = errors.Join(err, fmt.Errorf("tax percent %f is greater than 100%%", item.TaxPercent.Get()))
+			result = errors.Join(result, fmt.Errorf("tax percent %f is greater than 100%%", item.TaxPercent.Get()))
 			item.TaxPercent.SetNull()
 		}
 	}
 	if item.Quantity.IsNotNull() {
 		item.Quantity.Set(math.Abs(item.Quantity.Get()))
 	}
-	if item.Currency, e = item.Currency.Normalized(); e != nil {
-		err = errors.Join(err, fmt.Errorf("invalid currency: %w", err))
+	if item.Currency, err = item.Currency.Normalized(); err != nil {
+		result = errors.Join(result, fmt.Errorf("invalid currency: %w", result))
 		item.Currency.SetNull()
 	}
 	if item.DiscountPercent.IsNotNull() {
 		item.DiscountPercent.Set(item.DiscountPercent.Get().Abs())
 		if item.DiscountPercent.Get() > 100 {
-			err = errors.Join(err, fmt.Errorf("discount percent %f is greater than 100%%", item.DiscountPercent.Get()))
+			result = errors.Join(result, fmt.Errorf("discount percent %f is greater than 100%%", item.DiscountPercent.Get()))
 			item.DiscountPercent.SetNull()
 		}
 	}
-	return err
+	return result
 }

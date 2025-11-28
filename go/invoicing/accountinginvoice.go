@@ -43,17 +43,22 @@ type AccountingEntry struct {
 	BookingText notnull.TrimmedString `json:"booking_text"`
 }
 
+// Normalize validates and normalizes all fields of the AccountingEntry.
+// It returns an aggregated error of all validation issues found.
+// Invalid fields are either corrected (e.g., amounts become absolute and rounded)
+// or set to null/zero values. The entry remains usable after normalization,
+// with the returned error describing what was corrected.
 func (a *AccountingEntry) Normalize() error {
 	if a == nil {
 		return nil
 	}
-	var e, err error
-	if e = a.Type.Validate(); e != nil {
-		err = errors.Join(err, e)
+	var err, result error
+	if err = a.Type.Validate(); err != nil {
+		result = errors.Join(result, err)
 		a.Type = ""
 	}
 	if a.GeneralLedgerAccountNumber.IsEmpty() {
-		err = errors.Join(err, fmt.Errorf("general ledger account number is empty"))
+		result = errors.Join(result, fmt.Errorf("general ledger account number is empty"))
 		a.GeneralLedgerAccountNumber = ""
 	}
 	a.Amount = a.Amount.Abs().RoundToCents()
@@ -63,15 +68,15 @@ func (a *AccountingEntry) Normalize() error {
 	if a.TaxPercent.IsNotNull() {
 		a.TaxPercent.Set(a.TaxPercent.Get().Abs())
 		if a.TaxPercent.Get() > 100 {
-			err = errors.Join(err, fmt.Errorf("tax percent %f is greater than 100%%", a.TaxPercent.Get()))
+			result = errors.Join(result, fmt.Errorf("tax percent %f is greater than 100%%", a.TaxPercent.Get()))
 			a.TaxPercent.SetNull()
 		}
 	}
 	if a.BookingText.IsEmpty() {
-		err = errors.Join(err, fmt.Errorf("booking text is empty"))
+		result = errors.Join(result, fmt.Errorf("booking text is empty"))
 		a.BookingText = ""
 	}
-	return nil
+	return result
 }
 
 type AccountingEntryType string //#enum,jsonschema
