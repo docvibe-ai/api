@@ -58,7 +58,7 @@ func (a *AccountingEntry) Normalize() error {
 		a.Type = ""
 	}
 	if a.GeneralLedgerAccountNumber.IsEmpty() {
-		result = errors.Join(result, fmt.Errorf("general ledger account number is empty"))
+		result = errors.Join(result, errors.New("general ledger account number is empty"))
 		a.GeneralLedgerAccountNumber = ""
 	}
 	a.Amount = a.Amount.Abs().RoundToCents()
@@ -73,7 +73,7 @@ func (a *AccountingEntry) Normalize() error {
 		}
 	}
 	if a.BookingText.IsEmpty() {
-		result = errors.Join(result, fmt.Errorf("booking text is empty"))
+		result = errors.Join(result, errors.New("booking text is empty"))
 		a.BookingText = ""
 	}
 	return result
