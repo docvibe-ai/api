@@ -664,7 +664,7 @@
           "type": "null"
         }
       ],
-      "description": "Discount percentage of the invoice",
+      "description": "Discount percentage of the invoice (valid range: 0-100)",
       "default": null
     },
     "discount_amount": {
