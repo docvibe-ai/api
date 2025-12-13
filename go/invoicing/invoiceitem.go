@@ -46,11 +46,11 @@ type InvoiceItem struct {
 // Invalid fields are either corrected (e.g., negative amounts become absolute)
 // or set to null/zero values. The item remains usable after normalization,
 // with the returned errors describing what was corrected.
-func (item *InvoiceItem) Normalize() []error {
+func (item *InvoiceItem) Normalize() (errs []error) {
 	if item == nil {
 		return nil
 	}
-	var errs []error
+	var err error
 	if item.TaxPercent.IsNotNull() {
 		item.TaxPercent.Set(item.TaxPercent.Get().Abs())
 		if item.TaxPercent.Get() > 100 {
@@ -61,11 +61,9 @@ func (item *InvoiceItem) Normalize() []error {
 	if item.Quantity.IsNotNull() {
 		item.Quantity.Set(math.Abs(item.Quantity.Get()))
 	}
-	if normalized, err := item.Currency.Normalized(); err != nil {
+	if item.Currency, err = item.Currency.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid currency: %w", err))
 		item.Currency.SetNull()
-	} else {
-		item.Currency = normalized
 	}
 	if item.DiscountPercent.IsNotNull() {
 		item.DiscountPercent.Set(item.DiscountPercent.Get().Abs())

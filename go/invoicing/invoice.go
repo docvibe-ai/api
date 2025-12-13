@@ -153,19 +153,15 @@ func (inv *Invoice) Normalize() (errs []error) {
 	return errs
 }
 
-func (inv *Invoice) normalizeCustomer() []error {
-	var errs []error
-	if normalized, err := inv.CustomerVATID.Normalized(); err != nil {
+func (inv *Invoice) normalizeCustomer() (errs []error) {
+	var err error
+	if inv.CustomerVATID, err = inv.CustomerVATID.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid customer VAT ID: %w", err))
 		inv.CustomerVATID.SetNull()
-	} else {
-		inv.CustomerVATID = normalized
 	}
-	if normalized, err := inv.CustomerEmail.Normalized(); err != nil {
+	if inv.CustomerEmail, err = inv.CustomerEmail.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid customer email: %w", err))
 		inv.CustomerEmail.SetNull()
-	} else {
-		inv.CustomerEmail = normalized
 	}
 	if addrErrs := inv.CustomerBillingAddress.Normalize(); len(addrErrs) > 0 {
 		for _, e := range addrErrs {
@@ -180,13 +176,11 @@ func (inv *Invoice) normalizeCustomer() []error {
 	return errs
 }
 
-func (inv *Invoice) normalizeIssuer() []error {
-	var errs []error
-	if normalized, err := inv.IssuerVATID.Normalized(); err != nil {
+func (inv *Invoice) normalizeIssuer() (errs []error) {
+	var err error
+	if inv.IssuerVATID, err = inv.IssuerVATID.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid issuer VAT ID: %w", err))
 		inv.IssuerVATID.SetNull()
-	} else {
-		inv.IssuerVATID = normalized
 	}
 	if addrErrs := inv.IssuerAddress.Normalize(); len(addrErrs) > 0 {
 		for _, e := range addrErrs {
@@ -196,42 +190,32 @@ func (inv *Invoice) normalizeIssuer() []error {
 	return errs
 }
 
-func (inv *Invoice) normalizeHeaderDates() []error {
-	var errs []error
-	if normalized, err := inv.IssueDate.Normalized(); err != nil {
+func (inv *Invoice) normalizeHeaderDates() (errs []error) {
+	var err error
+	if inv.IssueDate, err = inv.IssueDate.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid issue date: %w", err))
 		inv.IssueDate.SetNull()
-	} else {
-		inv.IssueDate = normalized
 	}
-	if normalized, err := inv.DueDate.Normalized(); err != nil {
+	if inv.DueDate, err = inv.DueDate.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid due date: %w", err))
 		inv.DueDate.SetNull()
-	} else {
-		inv.DueDate = normalized
 	}
-	if normalized, err := inv.OrderDate.Normalized(); err != nil {
+	if inv.OrderDate, err = inv.OrderDate.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid order date: %w", err))
 		inv.OrderDate.SetNull()
-	} else {
-		inv.OrderDate = normalized
 	}
 	return errs
 }
 
-func (inv *Invoice) normalizePeriodDates() []error {
-	var errs []error
-	if normalized, err := inv.PeriodStart.Normalized(); err != nil {
+func (inv *Invoice) normalizePeriodDates() (errs []error) {
+	var err error
+	if inv.PeriodStart, err = inv.PeriodStart.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid period start date: %w", err))
 		inv.PeriodStart.SetNull()
-	} else {
-		inv.PeriodStart = normalized
 	}
-	if normalized, err := inv.PeriodEnd.Normalized(); err != nil {
+	if inv.PeriodEnd, err = inv.PeriodEnd.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid period end date: %w", err))
 		inv.PeriodEnd.SetNull()
-	} else {
-		inv.PeriodEnd = normalized
 	}
 	if inv.PeriodStart.IsNotNull() && inv.PeriodEnd.IsNotNull() {
 		if inv.PeriodStart.Get().After(inv.PeriodEnd.Get()) {
@@ -242,35 +226,29 @@ func (inv *Invoice) normalizePeriodDates() []error {
 	return errs
 }
 
-func (inv *Invoice) normalizePayment() []error {
-	var errs []error
-	if err := inv.PaymentStatus.Validate(); err != nil {
+func (inv *Invoice) normalizePayment() (errs []error) {
+	var err error
+	if err = inv.PaymentStatus.Validate(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid payment status: %w", err))
 		inv.PaymentStatus = PaymentStatusUnpaid
 	}
-	if normalized, err := inv.PaidDate.Normalized(); err != nil {
+	if inv.PaidDate, err = inv.PaidDate.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid paid date: %w", err))
 		inv.PaidDate.SetNull()
-	} else {
-		inv.PaidDate = normalized
 	}
-	if normalized, err := inv.PaymentIBAN.Normalized(); err != nil {
+	if inv.PaymentIBAN, err = inv.PaymentIBAN.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid payment IBAN: %w", err))
 		inv.PaymentIBAN.SetNull()
-	} else {
-		inv.PaymentIBAN = normalized
 	}
-	if normalized, err := inv.PaymentBIC.Normalized(); err != nil {
+	if inv.PaymentBIC, err = inv.PaymentBIC.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid payment BIC: %w", err))
 		inv.PaymentBIC.SetNull()
-	} else {
-		inv.PaymentBIC = normalized
 	}
 	return errs
 }
 
-func (inv *Invoice) normalizeDiscount() []error {
-	var errs []error
+func (inv *Invoice) normalizeDiscount() (errs []error) {
+	var err error
 	if inv.DiscountPercent.IsNotNull() {
 		if inv.DiscountPercent.Get() < 0 {
 			errs = append(errs, fmt.Errorf("discount percent %f is negative", inv.DiscountPercent.Get()))
@@ -285,17 +263,14 @@ func (inv *Invoice) normalizeDiscount() []error {
 		errs = append(errs, fmt.Errorf("discount amount %f is negative", inv.DiscountAmount.Get()))
 		inv.DiscountAmount.Set(inv.DiscountAmount.Get().Abs())
 	}
-	if normalized, err := inv.DiscountUntilDate.Normalized(); err != nil {
+	if inv.DiscountUntilDate, err = inv.DiscountUntilDate.Normalized(); err != nil {
 		errs = append(errs, fmt.Errorf("invalid discount until date: %w", err))
 		inv.DiscountUntilDate.SetNull()
-	} else {
-		inv.DiscountUntilDate = normalized
 	}
 	return errs
 }
 
-func (inv *Invoice) normalizeItems() []error {
-	var errs []error
+func (inv *Invoice) normalizeItems() (errs []error) {
 	inv.Items = slices.DeleteFunc(inv.Items, func(item *InvoiceItem) bool {
 		return item == nil || *item == InvoiceItem{}
 	})
@@ -309,8 +284,7 @@ func (inv *Invoice) normalizeItems() []error {
 	return errs
 }
 
-func (inv *Invoice) normalizeAccountingEntries() []error {
-	var errs []error
+func (inv *Invoice) normalizeAccountingEntries() (errs []error) {
 	inv.AccountingEntries = slices.DeleteFunc(inv.AccountingEntries, func(entry *AccountingEntry) bool {
 		return entry == nil || *entry == AccountingEntry{}
 	})
@@ -324,8 +298,7 @@ func (inv *Invoice) normalizeAccountingEntries() []error {
 	return errs
 }
 
-func (inv *Invoice) normalizeAmountsAndCurrency() []error {
-	var errs []error
+func (inv *Invoice) normalizeAmountsAndCurrency() (errs []error) {
 	if inv.Subtotal.IsNotNull() && inv.Subtotal.Get() < 0 {
 		errs = append(errs, fmt.Errorf("subtotal %f is negative", inv.Subtotal.Get()))
 		inv.Subtotal.Set(inv.Subtotal.Get().Abs())
