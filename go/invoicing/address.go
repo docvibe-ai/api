@@ -1,7 +1,6 @@
 package invoicing
 
 import (
-	"errors"
 	"fmt"
 
 	"github.com/domonda/go-types/country"
@@ -16,13 +15,19 @@ type Address struct {
 	Country    country.NullableCode   `json:"country,omitempty"`
 }
 
-func (a *Address) Normalize() (err error) {
+// Normalize validates and normalizes all fields of the Address.
+// It returns a slice of all validation errors found.
+// Invalid fields are set to null values. The address remains usable
+// after normalization, with the returned errors describing what was corrected.
+func (a *Address) Normalize() []error {
 	if a == nil {
 		return nil
 	}
+	var err error
+	var errs []error
 	if a.Country, err = a.Country.Normalized(); err != nil {
-		err = errors.Join(err, fmt.Errorf("invalid country code: %w", err))
+		errs = append(errs, fmt.Errorf("invalid address country code: %w", err))
 		a.Country.SetNull()
 	}
-	return err
+	return errs
 }

@@ -7,7 +7,7 @@ tool github.com/ungerik/go-enum
 replace github.com/olekukonko/tablewriter => github.com/olekukonko/tablewriter v0.0.5 // Don't upgrade this to v1, it breaks the build!
 
 require (
-	github.com/domonda/go-types v0.0.0-20251108113343-9bda55002c13
+	github.com/domonda/go-types v0.0.0-20251212145458-b8fd5d8d267e
 	github.com/invopop/jsonschema v0.13.0
 )
 
@@ -17,7 +17,7 @@ require (
 	github.com/cention-sany/utf7 v0.0.0-20170124080048-26cad61bd60a // indirect
 	github.com/clipperhouse/stringish v0.1.1 // indirect
 	github.com/clipperhouse/uax29/v2 v2.3.0 // indirect
-	github.com/domonda/go-errs v0.0.0-20251015071040-2e5474724d88 // indirect
+	github.com/domonda/go-errs v0.0.0-20251211135733-ef13df6eb978 // indirect
 	github.com/domonda/go-pretty v0.0.0-20251015070800-44d406a6d055 // indirect
 	github.com/gogs/chardet v0.0.0-20211120154057-b7413eaefb8f // indirect
 	github.com/jaytaylor/html2text v0.0.0-20230321000545-74c2419ad056 // indirect
@@ -32,11 +32,11 @@ require (
 	github.com/ungerik/go-enum v0.0.0-20251017174015-a3cf67b7d9db // indirect
 	github.com/ungerik/go-reflection v0.0.0-20251017081454-aea4ca25282d // indirect
 	github.com/wk8/go-ordered-map/v2 v2.1.8 // indirect
-	golang.org/x/mod v0.30.0 // indirect
-	golang.org/x/net v0.47.0 // indirect
-	golang.org/x/sync v0.18.0 // indirect
-	golang.org/x/text v0.31.0 // indirect
-	golang.org/x/tools v0.39.0 // indirect
+	golang.org/x/mod v0.31.0 // indirect
+	golang.org/x/net v0.48.0 // indirect
+	golang.org/x/sync v0.19.0 // indirect
+	golang.org/x/text v0.32.0 // indirect
+	golang.org/x/tools v0.40.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	mvdan.cc/xurls/v2 v2.6.0 // indirect
 )

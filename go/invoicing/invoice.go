@@ -1,7 +1,6 @@
 package invoicing
 
 import (
-	"errors"
 	"fmt"
 	"slices"
 
@@ -122,153 +121,241 @@ type Invoice struct {
 }
 
 // Normalize validates and normalizes all fields of the Invoice.
-// It returns an aggregated error of all validation issues found.
+// It returns a slice of all validation errors found.
 // Invalid fields are either corrected (e.g., negative amounts become absolute)
-// or set to null/zero values. The invoice remains usable after normalization,
-// with the returned error describing what was corrected.
-func (inv *Invoice) Normalize() error {
+// or set to null/zero values. The invoice is usable after normalization
+// with the returned errors describing what was corrected.
+func (inv *Invoice) Normalize() (errs []error) {
 	if inv == nil {
 		return nil
 	}
-	var err, result error
-	if err = inv.Type.Validate(); err != nil {
-		result = errors.Join(result, err)
+
+	if err := inv.Type.Validate(); err != nil {
+		errs = append(errs, err)
 		inv.Type = ""
 	}
-	if inv.IssueDate, err = inv.IssueDate.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid issue date: %w", err))
-		inv.IssueDate.SetNull()
-	}
-	if inv.PeriodStart, err = inv.PeriodStart.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid period start date: %w", err))
-		inv.PeriodStart.SetNull()
-	}
-	if inv.PeriodEnd, err = inv.PeriodEnd.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid period end date: %w", err))
-		inv.PeriodEnd.SetNull()
-	}
-	if inv.PeriodStart.IsNotNull() && inv.PeriodEnd.IsNotNull() {
-		if inv.PeriodStart.Get().After(inv.PeriodEnd.Get()) {
-			result = errors.Join(result, fmt.Errorf("period start date %s is after period end date %s", inv.PeriodStart.Get(), inv.PeriodEnd.Get()))
-			inv.PeriodStart.SetNull()
-		}
-	}
-	if inv.DueDate, err = inv.DueDate.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid due date: %w", err))
-		inv.DueDate.SetNull()
-	}
-	if inv.OrderDate, err = inv.OrderDate.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid order date: %w", err))
-		inv.OrderDate.SetNull()
-	}
+	inv.Notes = slices.DeleteFunc(inv.Notes, func(note nullable.TrimmedString) bool {
+		return note.IsNull()
+	})
 	inv.DeliveryNoteIDs = slices.DeleteFunc(inv.DeliveryNoteIDs, func(id notnull.TrimmedString) bool {
 		return id.IsEmpty()
 	})
-	if inv.IssuerVATID, err = inv.IssuerVATID.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid issuer VAT ID: %w", err))
-		inv.IssuerVATID.SetNull()
-	}
-	if err = inv.IssuerAddress.Normalize(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid issuer address: %w", err))
-	}
-	if inv.CustomerVATID, err = inv.CustomerVATID.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid customer VAT ID: %w", err))
-		inv.CustomerVATID.SetNull()
-	}
-	if inv.CustomerEmail, err = inv.CustomerEmail.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid customer email: %w", err))
-		inv.CustomerEmail.SetNull()
-	}
-	if err = inv.CustomerBillingAddress.Normalize(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid customer billing address: %w", err))
-	}
-	if err = inv.CustomerShippingAddress.Normalize(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid customer shipping address: %w", err))
-	}
 
+	errs = append(errs, inv.normalizeHeaderDates()...)
+	errs = append(errs, inv.normalizePeriodDates()...)
+	errs = append(errs, inv.normalizeIssuer()...)
+	errs = append(errs, inv.normalizeCustomer()...)
+	errs = append(errs, inv.normalizeAmountsAndCurrency()...)
+	errs = append(errs, inv.normalizePayment()...)
+	errs = append(errs, inv.normalizeDiscount()...)
+	errs = append(errs, inv.normalizeItems()...)
+	errs = append(errs, inv.normalizeAccountingEntries()...)
+	return errs
+}
+
+func (inv *Invoice) normalizeCustomer() []error {
+	var errs []error
+	if normalized, err := inv.CustomerVATID.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid customer VAT ID: %w", err))
+		inv.CustomerVATID.SetNull()
+	} else {
+		inv.CustomerVATID = normalized
+	}
+	if normalized, err := inv.CustomerEmail.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid customer email: %w", err))
+		inv.CustomerEmail.SetNull()
+	} else {
+		inv.CustomerEmail = normalized
+	}
+	if addrErrs := inv.CustomerBillingAddress.Normalize(); len(addrErrs) > 0 {
+		for _, e := range addrErrs {
+			errs = append(errs, fmt.Errorf("invalid customer billing address: %w", e))
+		}
+	}
+	if addrErrs := inv.CustomerShippingAddress.Normalize(); len(addrErrs) > 0 {
+		for _, e := range addrErrs {
+			errs = append(errs, fmt.Errorf("invalid customer shipping address: %w", e))
+		}
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizeIssuer() []error {
+	var errs []error
+	if normalized, err := inv.IssuerVATID.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid issuer VAT ID: %w", err))
+		inv.IssuerVATID.SetNull()
+	} else {
+		inv.IssuerVATID = normalized
+	}
+	if addrErrs := inv.IssuerAddress.Normalize(); len(addrErrs) > 0 {
+		for _, e := range addrErrs {
+			errs = append(errs, fmt.Errorf("invalid issuer address: %w", e))
+		}
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizeHeaderDates() []error {
+	var errs []error
+	if normalized, err := inv.IssueDate.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid issue date: %w", err))
+		inv.IssueDate.SetNull()
+	} else {
+		inv.IssueDate = normalized
+	}
+	if normalized, err := inv.DueDate.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid due date: %w", err))
+		inv.DueDate.SetNull()
+	} else {
+		inv.DueDate = normalized
+	}
+	if normalized, err := inv.OrderDate.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid order date: %w", err))
+		inv.OrderDate.SetNull()
+	} else {
+		inv.OrderDate = normalized
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizePeriodDates() []error {
+	var errs []error
+	if normalized, err := inv.PeriodStart.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid period start date: %w", err))
+		inv.PeriodStart.SetNull()
+	} else {
+		inv.PeriodStart = normalized
+	}
+	if normalized, err := inv.PeriodEnd.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid period end date: %w", err))
+		inv.PeriodEnd.SetNull()
+	} else {
+		inv.PeriodEnd = normalized
+	}
+	if inv.PeriodStart.IsNotNull() && inv.PeriodEnd.IsNotNull() {
+		if inv.PeriodStart.Get().After(inv.PeriodEnd.Get()) {
+			errs = append(errs, fmt.Errorf("period start date %s is after period end date %s", inv.PeriodStart.Get(), inv.PeriodEnd.Get()))
+			inv.PeriodStart.SetNull()
+		}
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizePayment() []error {
+	var errs []error
+	if err := inv.PaymentStatus.Validate(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid payment status: %w", err))
+		inv.PaymentStatus = PaymentStatusUnpaid
+	}
+	if normalized, err := inv.PaidDate.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid paid date: %w", err))
+		inv.PaidDate.SetNull()
+	} else {
+		inv.PaidDate = normalized
+	}
+	if normalized, err := inv.PaymentIBAN.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid payment IBAN: %w", err))
+		inv.PaymentIBAN.SetNull()
+	} else {
+		inv.PaymentIBAN = normalized
+	}
+	if normalized, err := inv.PaymentBIC.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid payment BIC: %w", err))
+		inv.PaymentBIC.SetNull()
+	} else {
+		inv.PaymentBIC = normalized
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizeDiscount() []error {
+	var errs []error
+	if inv.DiscountPercent.IsNotNull() {
+		if inv.DiscountPercent.Get() < 0 {
+			errs = append(errs, fmt.Errorf("discount percent %f is negative", inv.DiscountPercent.Get()))
+			inv.DiscountPercent.Set(inv.DiscountPercent.Get().Abs())
+		}
+		if inv.DiscountPercent.Get() > 100 {
+			errs = append(errs, fmt.Errorf("discount percent %f is greater than 100%%", inv.DiscountPercent.Get()))
+			inv.DiscountPercent.SetNull()
+		}
+	}
+	if inv.DiscountAmount.IsNotNull() && inv.DiscountAmount.Get() < 0 {
+		errs = append(errs, fmt.Errorf("discount amount %f is negative", inv.DiscountAmount.Get()))
+		inv.DiscountAmount.Set(inv.DiscountAmount.Get().Abs())
+	}
+	if normalized, err := inv.DiscountUntilDate.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid discount until date: %w", err))
+		inv.DiscountUntilDate.SetNull()
+	} else {
+		inv.DiscountUntilDate = normalized
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizeItems() []error {
+	var errs []error
+	inv.Items = slices.DeleteFunc(inv.Items, func(item *InvoiceItem) bool {
+		return item == nil || *item == InvoiceItem{}
+	})
+	for i, item := range inv.Items {
+		if itemErrs := item.Normalize(); len(itemErrs) > 0 {
+			for _, e := range itemErrs {
+				errs = append(errs, fmt.Errorf("invalid item %d: %w", i, e))
+			}
+		}
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizeAccountingEntries() []error {
+	var errs []error
+	inv.AccountingEntries = slices.DeleteFunc(inv.AccountingEntries, func(entry *AccountingEntry) bool {
+		return entry == nil || *entry == AccountingEntry{}
+	})
+	for i, entry := range inv.AccountingEntries {
+		if entryErrs := entry.Normalize(); len(entryErrs) > 0 {
+			for _, e := range entryErrs {
+				errs = append(errs, fmt.Errorf("invalid accounting entry %d: %w", i, e))
+			}
+		}
+	}
+	return errs
+}
+
+func (inv *Invoice) normalizeAmountsAndCurrency() []error {
+	var errs []error
 	if inv.Subtotal.IsNotNull() && inv.Subtotal.Get() < 0 {
-		result = errors.Join(result, fmt.Errorf("subtotal %f is negative", inv.Subtotal.Get()))
+		errs = append(errs, fmt.Errorf("subtotal %f is negative", inv.Subtotal.Get()))
 		inv.Subtotal.Set(inv.Subtotal.Get().Abs())
 	}
 	if inv.Tax.IsNotNull() && inv.Tax.Get() < 0 {
-		result = errors.Join(result, fmt.Errorf("tax %f is negative", inv.Tax.Get()))
+		errs = append(errs, fmt.Errorf("tax %f is negative", inv.Tax.Get()))
 		inv.Tax.Set(inv.Tax.Get().Abs())
 	}
 	if inv.Total.IsNotNull() && inv.Total.Get() < 0 {
-		result = errors.Join(result, fmt.Errorf("total %f is negative", inv.Total.Get()))
+		errs = append(errs, fmt.Errorf("total %f is negative", inv.Total.Get()))
 		inv.Total.Set(inv.Total.Get().Abs())
 	}
 	if inv.Subtotal.IsNotNull() && inv.Total.IsNotNull() {
 		if inv.Subtotal.Get() > inv.Total.Get() {
-			result = errors.Join(result, fmt.Errorf("subtotal %f is greater than total %f", inv.Subtotal.Get(), inv.Total.Get()))
+			errs = append(errs, fmt.Errorf("subtotal %f is greater than total %f", inv.Subtotal.Get(), inv.Total.Get()))
 			inv.Subtotal.SetNull()
 		}
 	}
 	if inv.Subtotal.IsNotNull() && inv.Tax.IsNotNull() && inv.Total.IsNotNull() {
 		if !(inv.Subtotal.Get() + inv.Tax.Get()).WithinOneCent(inv.Total.Get()) {
-			result = errors.Join(result, fmt.Errorf("subtotal %f and tax %f does not sum up to total %f", inv.Subtotal.Get(), inv.Tax.Get(), inv.Total.Get()))
+			errs = append(errs, fmt.Errorf("subtotal %f and tax %f does not sum up to total %f", inv.Subtotal.Get(), inv.Tax.Get(), inv.Total.Get()))
 			inv.Tax.SetNull()
 		}
 	}
+	var err error
 	if inv.Currency, err = inv.Currency.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid currency: %w", err))
+		errs = append(errs, fmt.Errorf("invalid currency: %w", err))
 		inv.Currency.SetNull()
 	}
-
-	if err = inv.PaymentStatus.Validate(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid payment status: %w", err))
-		inv.PaymentStatus = PaymentStatusUnpaid
-	}
-	if inv.PaidDate, err = inv.PaidDate.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid paid date: %w", err))
-		inv.PaidDate.SetNull()
-	}
-	if inv.PaymentIBAN, err = inv.PaymentIBAN.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid payment IBAN: %w", err))
-		inv.PaymentIBAN.SetNull()
-	}
-	if inv.PaymentBIC, err = inv.PaymentBIC.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid payment BIC: %w", err))
-		inv.PaymentBIC.SetNull()
-	}
-	if inv.DiscountPercent.IsNotNull() {
-		if inv.DiscountPercent.Get() < 0 {
-			result = errors.Join(result, fmt.Errorf("discount percent %f is negative", inv.DiscountPercent.Get()))
-			inv.DiscountPercent.Set(inv.DiscountPercent.Get().Abs())
-		}
-		if inv.DiscountPercent.Get() > 100 {
-			result = errors.Join(result, fmt.Errorf("discount percent %f is greater than 100%%", inv.DiscountPercent.Get()))
-			inv.DiscountPercent.SetNull()
-		}
-	}
-	if inv.DiscountAmount.IsNotNull() && inv.DiscountAmount.Get() < 0 {
-		result = errors.Join(result, fmt.Errorf("discount amount %f is negative", inv.DiscountAmount.Get()))
-		inv.DiscountAmount.Set(inv.DiscountAmount.Get().Abs())
-	}
-	if inv.DiscountUntilDate, err = inv.DiscountUntilDate.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid discount until date: %w", err))
-		inv.DiscountUntilDate.SetNull()
-	}
-	inv.Notes = slices.DeleteFunc(inv.Notes, func(note nullable.TrimmedString) bool {
-		return note.IsNull()
-	})
-	inv.Items = slices.DeleteFunc(inv.Items, func(item *InvoiceItem) bool {
-		return item == nil || *item == InvoiceItem{}
-	})
-	for i, item := range inv.Items {
-		if err = item.Normalize(); err != nil {
-			result = errors.Join(result, fmt.Errorf("invalid item %d: %w", i, err))
-		}
-	}
-	inv.AccountingEntries = slices.DeleteFunc(inv.AccountingEntries, func(entry *AccountingEntry) bool {
-		return entry == nil || *entry == AccountingEntry{}
-	})
-	for i, entry := range inv.AccountingEntries {
-		if err = entry.Normalize(); err != nil {
-			result = errors.Join(result, fmt.Errorf("invalid accounting entry %d: %w", i, err))
-		}
-	}
-	return result
+	return errs
 }
 
 type EUReverseCharge struct {

@@ -1,7 +1,6 @@
 package invoicing
 
 import (
-	"errors"
 	"fmt"
 	"math"
 
@@ -43,35 +42,37 @@ type InvoiceItem struct {
 }
 
 // Normalize validates and normalizes all fields of the InvoiceItem.
-// It returns an aggregated error of all validation issues found.
+// It returns a slice of all validation errors found.
 // Invalid fields are either corrected (e.g., negative amounts become absolute)
 // or set to null/zero values. The item remains usable after normalization,
-// with the returned error describing what was corrected.
-func (item *InvoiceItem) Normalize() error {
+// with the returned errors describing what was corrected.
+func (item *InvoiceItem) Normalize() []error {
 	if item == nil {
 		return nil
 	}
-	var err, result error
+	var errs []error
 	if item.TaxPercent.IsNotNull() {
 		item.TaxPercent.Set(item.TaxPercent.Get().Abs())
 		if item.TaxPercent.Get() > 100 {
-			result = errors.Join(result, fmt.Errorf("tax percent %f is greater than 100%%", item.TaxPercent.Get()))
+			errs = append(errs, fmt.Errorf("tax percent %f is greater than 100%%", item.TaxPercent.Get()))
 			item.TaxPercent.SetNull()
 		}
 	}
 	if item.Quantity.IsNotNull() {
 		item.Quantity.Set(math.Abs(item.Quantity.Get()))
 	}
-	if item.Currency, err = item.Currency.Normalized(); err != nil {
-		result = errors.Join(result, fmt.Errorf("invalid currency: %w", result))
+	if normalized, err := item.Currency.Normalized(); err != nil {
+		errs = append(errs, fmt.Errorf("invalid currency: %w", err))
 		item.Currency.SetNull()
+	} else {
+		item.Currency = normalized
 	}
 	if item.DiscountPercent.IsNotNull() {
 		item.DiscountPercent.Set(item.DiscountPercent.Get().Abs())
 		if item.DiscountPercent.Get() > 100 {
-			result = errors.Join(result, fmt.Errorf("discount percent %f is greater than 100%%", item.DiscountPercent.Get()))
+			errs = append(errs, fmt.Errorf("discount percent %f is greater than 100%%", item.DiscountPercent.Get()))
 			item.DiscountPercent.SetNull()
 		}
 	}
-	return result
+	return errs
 }
