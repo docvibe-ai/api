@@ -16,7 +16,7 @@ info:
     url: https://docvibe.ai
 
 servers:
-  - url: https://api.docvibe.ai
+  - url: https://domonda.api.docvibe.ai
     description: Production server
 
 paths:
